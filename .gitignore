@@ -1,0 +1,26 @@
+# Rust/Anchor build artifacts
+target/
+.anchor/
+**/*.rs.bk
+
+# Node
+node_modules/
+.pnp
+.pnp.js
+
+# Env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Solana keypairs (НИКОГДА не коммить!)
+id.json
+*.json
+!Anchor.toml
