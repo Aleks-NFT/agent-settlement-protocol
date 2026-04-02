@@ -69,7 +69,7 @@ anchor test
 
 [Colosseum Frontier](https://colosseum.com/frontier) — April 6 – May 11, 2026 | Prize pool: $2.5M
 
-**Author:** Piter [@FirstNFT](https://twitter.com/FirstNFT) — Kyiv, Ukraine
+**Author:** Aleks_ [@FirstNFT](https://twitter.com/FirstNFT) — Kyiv, Ukraine
 
 ---
 *Trust → Economic Enforcement → Guaranteed Execution → Credit Flywheel*
