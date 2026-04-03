@@ -91,14 +91,15 @@ More settlements -> Higher trust -> Lower fee + More credit -> More settlements
 
 ## Competitive Position
 
-  Protocol        Oracle  Multi-step Atomic  Trust Economics  Agent Native  Chain
-  UMA             YES     NO                 NO               NO            Ethereum
-  Gnosis CTF      YES     NO                 NO               NO            Ethereum
-  Augur v2        YES     NO                 NO               NO            Dead
-  Azuro           YES     NO                 NO               partial SDK   Polygon
-  Drift BET       YES     NO                 NO               partial API   Solana
-  Polymarket      YES     NO                 NO               YES CLOB      Polygon
-  AgentVault ASP  YES     YES atomic N-step  YES              YES MCP+A2A   Solana
+| Protocol | Oracle | Multi-step Atomic | Trust Economics | Agent Native | Chain |
+|---|:---:|:---:|:---:|:---:|---|
+| UMA | ✅ | ❌ | ❌ | ❌ | Ethereum |
+| Gnosis CTF | ✅ | ❌ | ❌ | ❌ | Ethereum |
+| Augur v2 | ✅ | ❌ | ❌ | ❌ | Dead |
+| Azuro | ✅ | ❌ | ❌ | partial SDK | Polygon |
+| Drift BET | ✅ | ❌ | ❌ | partial API | Solana |
+| Polymarket | ✅ | ❌ | ❌ | YES CLOB | Polygon |
+| **AgentVault ASP** | ✅ | **✅ atomic N-step** | **✅** | **✅ MCP+A2A** | **Solana** |
 
 ---
 
