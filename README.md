@@ -29,6 +29,11 @@ Same Super Bowl event. Same moment. Two different outcomes:
 An agent arbitraging both platforms lost on both sides simultaneously.
 No rollback. No protection. CFTC complaint filed.
 
+**Drift Hack — $285M stolen (April 2026)**
+The largest DeFi hack of 2026. Drift suspended all deposits and withdrawals mid-session.
+Agents running active strategies had zero recourse — no atomic revert, no protection layer, no refund.
+Root cause: no settlement envelope around agent positions.
+
 ---
 
 ## What AgentVault Builds
@@ -97,7 +102,7 @@ More settlements -> Higher trust -> Lower fee + More credit -> More settlements
 | Gnosis CTF | ✅ | ❌ | ❌ | ❌ | Ethereum |
 | Augur v2 | ✅ | ❌ | ❌ | ❌ | Dead |
 | Azuro | ✅ | ❌ | ❌ | partial SDK | Polygon |
-| Drift BET | ✅ | ❌ | ❌ | partial API | Solana |
+| Drift BET | ✅ | ❌ | ❌ | ~~partial API~~ **HACKED** | Solana |
 | Polymarket | ✅ | ❌ | ❌ | YES CLOB | Polygon |
 | **AgentVault ASP** | ✅ | **✅ atomic N-step** | **✅** | **✅ MCP+A2A** | **Solana** |
 
@@ -106,7 +111,7 @@ More settlements -> Higher trust -> Lower fee + More credit -> More settlements
 ## Tech Stack
 
   Smart contracts    Rust + Anchor 0.32.1
-  Prediction market  Drift BET (Solana)
+  Prediction market  Zeta Markets + Phoenix Perpetuals (Solana)
   DeFi routing       Raydium, Meteora
   Oracle             Pyth Network + Switchboard
   Position token     Metaplex Core (Settlement NFT)
