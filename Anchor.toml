@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-agentvault = "5DWGriyPGA5Q4sc7ofBGE3sUUwj47JTnKoc7Dygh44rh"
+agentvault = "FfAjYkk4ktD3iHkF7jNes2p7EBZUR1mwBrbK4fGC3QXe"
 
 [registry]
 url = "https://api.apr.dev"
@@ -15,8 +15,8 @@ url = "https://api.apr.dev"
 cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
-[scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
-
 [workspace]
 members = ["programs/agentvault"]
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
