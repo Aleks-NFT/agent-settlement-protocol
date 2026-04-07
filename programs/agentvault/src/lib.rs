@@ -6,18 +6,24 @@ pub mod lock;
 pub mod precheck;
 pub mod execute_ix;
 pub mod revert;
+pub mod init_reputation;
 
 use lock::*;
 use precheck::*;
 use execute_ix::*;
 use revert::*;
 use state::*;
+use init_reputation::*;
 
-declare_id!("5DWGriyPGA5Q4sc7ofBGE3sUUwj47JTnKoc7Dygh44rh");
+declare_id!("FfAjYkk4ktD3iHkF7jNes2p7EBZUR1mwBrbK4fGC3QXe");
 
 #[program]
 pub mod agentvault {
     use super::*;
+
+    pub fn init_reputation(ctx: Context<InitReputation>) -> Result<()> {
+        init_reputation::handler(ctx)
+    }
 
     pub fn lock(ctx: Context<Lock>, market_id: Pubkey, amount: u64,
         position_type: PositionType, timeout_slots: u64) -> Result<()> {
