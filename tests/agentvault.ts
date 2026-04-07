@@ -229,4 +229,52 @@ describe("agentvault", () => {
       "USDC должны вернуться агенту"
     );
   });
+
+  it("execute: исполняет сделку и обновляет репутацию", async () => {
+    const marketId3 = Keypair.generate().publicKey;
+    const [settlementNft3] = PublicKey.findProgramAddressSync(
+      [Buffer.from("settlement_nft"), agent.publicKey.toBuffer(), marketId3.toBuffer()],
+      program.programId
+    );
+    const [vault3] = PublicKey.findProgramAddressSync(
+      [Buffer.from("vault"), settlementNft3.toBuffer()],
+      program.programId
+    );
+    const [vaultUsdc3] = PublicKey.findProgramAddressSync(
+      [Buffer.from("vault_usdc"), vault3.toBuffer()],
+      program.programId
+    );
+    await program.methods
+      .lock(marketId3, new BN(100_000_000), { yes: {} }, new BN(200))
+      .accounts({
+        agent: agent.publicKey, settlementNft: settlementNft3,
+        vault: vault3, vaultUsdc: vaultUsdc3, agentUsdc, usdcMint,
+        reputation, tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+      })
+      .rpc();
+    await program.methods
+      .preCheck(new BN(6000), new BN(6000), 100, new BN(200_000_000))
+      .accounts({ agent: agent.publicKey, settlementNft: settlementNft3, vault: vault3 })
+      .rpc();
+    const balanceBefore = await getAccount(provider.connection, agentUsdc);
+    const repBefore = await program.account.reputationAccount.fetch(reputation);
+    const tx = await program.methods
+      .executeTrade(Buffer.from([]), new BN(6050))
+      .accounts({
+        agent: agent.publicKey, settlementNft: settlementNft3,
+        vault: vault3, vaultUsdc: vaultUsdc3, agentUsdc,
+        reputation, tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .rpc();
+    console.log("execute tx:", tx);
+    const nft = await program.account.settlementNft.fetch(settlementNft3);
+    assert.equal(JSON.stringify(nft.status), JSON.stringify({ executed: {} }));
+    assert.equal(nft.actualFillPrice.toString(), "6050");
+    const balanceAfter = await getAccount(provider.connection, agentUsdc);
+    assert.isTrue(BigInt(balanceAfter.amount) > BigInt(balanceBefore.amount), "USDC должны вернуться");
+    const repAfter = await program.account.reputationAccount.fetch(reputation);
+    assert.isTrue(repAfter.successfulSettlements > repBefore.successfulSettlements, "reputation должна вырасти");
+  });
+
 });
