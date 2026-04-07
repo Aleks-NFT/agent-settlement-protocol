@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, Transfer};
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use crate::state::*;
 use crate::errors::AspError;
 
@@ -39,17 +39,21 @@ pub struct Lock<'info> {
     // USDC токен аккаунт агента
     #[account(
         mut,
-        constraint = agent_usdc.owner == agent.key() @ AspError::UnauthorizedAgent
+        constraint = agent_usdc.mint == usdc_mint.key() @ AspError::UnauthorizedAgent
     )]
     pub agent_usdc: Account<'info, TokenAccount>,
 
     // Vault USDC токен аккаунт (escrow)
     #[account(
-        mut,
+        init_if_needed,
+        payer = agent,
+        token::mint = usdc_mint,
+        token::authority = vault,
         seeds = [b"vault_usdc", vault.key().as_ref()],
         bump
     )]
     pub vault_usdc: Account<'info, TokenAccount>,
+    pub usdc_mint: Account<'info, Mint>,
 
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,

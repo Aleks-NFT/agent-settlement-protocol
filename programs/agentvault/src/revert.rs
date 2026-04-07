@@ -4,21 +4,20 @@ use crate::state::*;
 use crate::errors::AspError;
 
 pub fn handler(ctx: Context<Revert>, reason: RevertReason) -> Result<()> {
+    // Extract copy-types BEFORE mutable borrows to satisfy borrow checker
+    let vault_bump      = ctx.accounts.vault.bump;
+    let nft_key         = ctx.accounts.settlement_nft.key();
+    let previous_status = ctx.accounts.settlement_nft.status.clone();
+    let refund_amount   = ctx.accounts.vault_usdc.amount;
+    let clock           = Clock::get()?;
+
     let nft        = &mut ctx.accounts.settlement_nft;
     let vault      = &mut ctx.accounts.vault;
     let reputation = &mut ctx.accounts.reputation;
-    let clock      = Clock::get()?;
-
-    let previous_status = nft.status.clone();
-    let refund_amount   = ctx.accounts.vault_usdc.amount;
-
-    // Fix E0716: bind bump before creating seeds slice
-    let vault_usdc_bump = ctx.bumps.vault_usdc;
-    let vault_key       = vault.key();
     let vault_seeds: &[&[&[u8]]] = &[&[
-        b"vault_usdc",
-        vault_key.as_ref(),
-        &[vault_usdc_bump],
+        b"vault",
+        nft_key.as_ref(),
+        &[vault_bump],
     ]];
 
     let cpi_ctx = CpiContext::new_with_signer(
@@ -26,7 +25,7 @@ pub fn handler(ctx: Context<Revert>, reason: RevertReason) -> Result<()> {
         Transfer {
             from:      ctx.accounts.vault_usdc.to_account_info(),
             to:        ctx.accounts.agent_usdc.to_account_info(),
-            authority: ctx.accounts.vault_usdc.to_account_info(),
+            authority: vault.to_account_info(),
         },
         vault_seeds,
     );
@@ -101,7 +100,7 @@ pub struct Revert<'info> {
         seeds  = [b"vault_usdc", vault.key().as_ref()],
         bump,
         token::mint      = agent_usdc.mint,
-        token::authority = vault_usdc,
+        token::authority = vault,
     )]
     pub vault_usdc: Account<'info, TokenAccount>,
 
