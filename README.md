@@ -37,7 +37,7 @@ Root cause: no settlement envelope around agent positions.
 
 ---
 
-## What AgentVault Builds
+## What ASP Builds
 
 Agent Settlement Protocol (ASP) - the first on-chain clearing house for AI agents on Solana.
 
