@@ -31,6 +31,7 @@ describe("agentvault", () => {
   let reputation: PublicKey;
 
   const marketId = Keypair.generate().publicKey;
+const mockFeed = Keypair.generate();
 
   // ─── PDAs ────────────────────────────────────────────────────────────────
 
@@ -96,6 +97,21 @@ describe("agentvault", () => {
         systemProgram: SystemProgram.programId,
       })
       .rpc();
+
+    // 6. Create mock Pyth feed: SOL/USD price=130_00000000, conf=5000000, expo=-8
+    await program.methods
+      .createMockFeed(
+        new BN(13_000_000_000),
+        new BN(5_000_000),
+        -8
+      )
+      .accounts({
+        authority: agent.publicKey,
+        feed: mockFeed.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([mockFeed])
+      .rpc();
 }); 
 
   // ─── lock ────────────────────────────────────────────────────────────────
@@ -137,17 +153,18 @@ describe("agentvault", () => {
   // ─── pre_check ───────────────────────────────────────────────────────────
 
   it("pre_check: проходит проверку цены и ликвидности", async () => {
-    const currentPrice = new BN(6000);   // $0.60 в bps
-    const expectedPrice = new BN(6000);
-    const toleranceBps = 100;            // 1%
-    const availableLiquidity = new BN(200_000_000); // 200 USDC
+    // Pyth SOL/USD expo=-8, expected ~$130 with 50% tolerance to match live price
+    const expectedPrice = new BN(13_000_000_000);
+    const toleranceBps = 5000;
+    const availableLiquidity = new BN(200_000_000);
 
     const tx = await program.methods
-      .preCheck(currentPrice, expectedPrice, toleranceBps, availableLiquidity)
+      .preCheck(expectedPrice, toleranceBps, availableLiquidity)
       .accounts({
         agent: agent.publicKey,
         settlementNft,
         vault,
+        pythPriceFeed: mockFeed.publicKey,
       })
       .rpc();
 
@@ -187,8 +204,8 @@ describe("agentvault", () => {
       .rpc();
     try {
       await program.methods
-        .preCheck(new BN(7000), new BN(6000), 100, new BN(200_000_000))
-        .accounts({ agent: agent.publicKey, settlementNft: settlementNft2, vault: vault2 })
+        .preCheck(new BN(1), 1, new BN(200_000_000))
+        .accounts({ agent: agent.publicKey, settlementNft: settlementNft2, vault: vault2, pythPriceFeed: mockFeed.publicKey })
         .rpc();
       assert.fail("Expected PriceOutOfRange");
     } catch (err: any) {
@@ -254,13 +271,13 @@ describe("agentvault", () => {
       })
       .rpc();
     await program.methods
-      .preCheck(new BN(6000), new BN(6000), 100, new BN(200_000_000))
-      .accounts({ agent: agent.publicKey, settlementNft: settlementNft3, vault: vault3 })
+      .preCheck(new BN(13_000_000_000), 5000, new BN(200_000_000))
+      .accounts({ agent: agent.publicKey, settlementNft: settlementNft3, vault: vault3, pythPriceFeed: mockFeed.publicKey })
       .rpc();
     const balanceBefore = await getAccount(provider.connection, agentUsdc);
     const repBefore = await program.account.reputationAccount.fetch(reputation);
     const tx = await program.methods
-      .executeTrade(Buffer.from([]), new BN(6050))
+      .executeTrade(new BN(6050))
       .accounts({
         agent: agent.publicKey, settlementNft: settlementNft3,
         vault: vault3, vaultUsdc: vaultUsdc3, agentUsdc,

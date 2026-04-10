@@ -24,4 +24,10 @@ pub enum AspError {
     TimedOut,
     #[msg("Arithmetic overflow")]
     ArithmeticOverflow,
+    #[msg("Pyth price feed is stale")]
+    PriceStale,
+    #[msg("Pyth confidence interval too wide")]
+    PriceConfidenceTooHigh,
+    #[msg("Fill price must be greater than zero")]
+    InvalidFillPrice,
 }
