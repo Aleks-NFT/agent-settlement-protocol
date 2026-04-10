@@ -7,6 +7,7 @@ pub mod precheck;
 pub mod mock_feed;
 pub mod execute_ix;
 pub mod revert;
+pub mod settle;
 pub mod init_reputation;
 
 use lock::*;
@@ -14,6 +15,7 @@ use precheck::*;
 use mock_feed::*;
 use execute_ix::*;
 use revert::*;
+use settle::*;
 use state::*;
 use init_reputation::*;
 
@@ -47,5 +49,10 @@ pub mod agentvault {
 
     pub fn revert(ctx: Context<Revert>, reason: RevertReason) -> Result<()> {
         revert::handler(ctx, reason)
+    }
+
+
+    pub fn settle(ctx: Context<Settle>) -> Result<()> {
+        settle::handler(ctx)
     }
 }

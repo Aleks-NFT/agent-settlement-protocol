@@ -9,8 +9,6 @@ pub struct Settle<'info> {
     pub agent: Signer<'info>,
     #[account(
         mut,
-        seeds = [b"settlementnft", agent.key().as_ref(), settlement_nft.market_id.as_ref()],
-        bump = settlement_nft.bump,
         constraint = settlement_nft.agent == agent.key() @ AspError::UnauthorizedAgent,
         constraint = settlement_nft.status == SettlementStatus::Executed @ AspError::InvalidStatus,
     )]

@@ -85,6 +85,7 @@ pub struct Revert<'info> {
         mut,
         seeds = [b"settlement_nft", agent.key().as_ref(), settlement_nft.market_id.as_ref()],
         bump  = settlement_nft.bump,
+        constraint = settlement_nft.agent == agent.key() @ AspError::UnauthorizedAgent,
     )]
     pub settlement_nft: Account<'info, SettlementNft>,
 
@@ -92,6 +93,7 @@ pub struct Revert<'info> {
         mut,
         seeds = [b"vault", settlement_nft.key().as_ref()],
         bump  = vault.bump,
+        constraint = !vault.is_closed @ AspError::VaultClosed,
     )]
     pub vault: Account<'info, Vault>,
 
