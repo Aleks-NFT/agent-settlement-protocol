@@ -11,6 +11,8 @@ import {
   TOKEN_PROGRAM_ID,
   createMint,
   createAssociatedTokenAccount,
+  createAccount,
+  getOrCreateAssociatedTokenAccount,
   mintTo,
   getAccount,
 } from "@solana/spl-token";
@@ -28,6 +30,10 @@ describe("agentvault", () => {
   let vaultUsdc: PublicKey;
   let settlementNft: PublicKey;
   let vault: PublicKey;
+  let marketId3: PublicKey;
+  let settlementNft3: PublicKey;
+  let vault3: PublicKey;
+  let vaultUsdc3: PublicKey;
   let reputation: PublicKey;
 
   const marketId = Keypair.generate().publicKey;
@@ -248,16 +254,16 @@ const mockFeed = Keypair.generate();
   });
 
   it("execute: исполняет сделку и обновляет репутацию", async () => {
-    const marketId3 = Keypair.generate().publicKey;
-    const [settlementNft3] = PublicKey.findProgramAddressSync(
+    marketId3 = Keypair.generate().publicKey;
+    [settlementNft3] = PublicKey.findProgramAddressSync(
       [Buffer.from("settlement_nft"), agent.publicKey.toBuffer(), marketId3.toBuffer()],
       program.programId
     );
-    const [vault3] = PublicKey.findProgramAddressSync(
+    [vault3] = PublicKey.findProgramAddressSync(
       [Buffer.from("vault"), settlementNft3.toBuffer()],
       program.programId
     );
-    const [vaultUsdc3] = PublicKey.findProgramAddressSync(
+    [vaultUsdc3] = PublicKey.findProgramAddressSync(
       [Buffer.from("vault_usdc"), vault3.toBuffer()],
       program.programId
     );
@@ -292,6 +298,40 @@ const mockFeed = Keypair.generate();
     assert.isTrue(BigInt(balanceAfter.amount) > BigInt(balanceBefore.amount), "USDC должны вернуться");
     const repAfter = await program.account.reputationAccount.fetch(reputation);
     assert.isTrue(repAfter.successfulSettlements > repBefore.successfulSettlements, "reputation должна вырасти");
+  });
+
+  it("settle: списывает fee и обновляет статус на Settled", async () => {
+    const feeOwner = Keypair.generate();
+    const feeCollectorObj = await getOrCreateAssociatedTokenAccount(
+      provider.connection,
+      (provider.wallet as anchor.Wallet).payer,
+      usdcMint,
+      feeOwner.publicKey
+    );
+    const feeCollector = feeCollectorObj.address;
+    const repBefore = await program.account.reputationAccount.fetch(reputation);
+    const balBefore = await getAccount(provider.connection, agentUsdc);
+
+    const tx = await program.methods
+      .settle()
+      .accounts({
+        agent: agent.publicKey,
+        settlementNft: settlementNft3,
+        vault: vault3,
+        agentUsdc,
+        feeCollector,
+        reputation,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .rpc();
+    console.log("settle tx:", tx);
+
+    const nft = await program.account.settlementNft.fetch(settlementNft3);
+    assert.equal(JSON.stringify(nft.status), JSON.stringify({ settled: {} }));
+    assert.isTrue(nft.settledSlot.toNumber() > 0);
+
+    const repAfter = await program.account.reputationAccount.fetch(reputation);
+    assert.isTrue(repAfter.trustScore >= repBefore.trustScore);
   });
 
 });

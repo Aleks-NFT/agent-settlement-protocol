@@ -124,6 +124,7 @@ pub fn handler(
     vault.collateral     = collateral;
     vault.is_closed      = false;  // ← revival attack protection
     vault.bump           = ctx.bumps.vault;
+    vault.vault_usdc_bump = ctx.bumps.vault_usdc;
 
     emit!(SettlementCreated {
         nft:        nft.key(),

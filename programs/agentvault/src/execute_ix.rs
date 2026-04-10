@@ -28,7 +28,7 @@ pub struct Execute<'info> {
     #[account(
         mut,
         seeds  = [b"vault_usdc", vault.key().as_ref()],
-        bump,
+        bump   = vault.vault_usdc_bump,
         token::mint      = agent_usdc.mint,
         token::authority = vault,
     )]
@@ -53,7 +53,6 @@ pub struct Execute<'info> {
 
 pub fn handler(
     ctx: Context<Execute>,
-    _venue_instruction_data: Vec<u8>,
     fill_price: u64,
 ) -> Result<()> {
     let vault_bump   = ctx.accounts.vault.bump;
@@ -63,6 +62,8 @@ pub fn handler(
     let clock         = Clock::get()?;
 
     require!(clock.slot < timeout_slot, AspError::TimedOut);
+    require!(fill_price > 0, AspError::InvalidFillPrice);
+    require!(fill_price > 0, AspError::InvalidFillPrice);
 
     let nft   = &mut ctx.accounts.settlement_nft;
     let vault = &mut ctx.accounts.vault;
