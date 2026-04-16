@@ -253,7 +253,7 @@ LIFECYCLE COMPLETE
 **Colosseum Frontier** — April 6 to May 11, 2026 — Prize pool $2.5M
 **Superteam Ukraine Track** — 10K USDG
 
-Author: Piter @FirstNFT — Kyiv, Ukraine
+Author: Aleks @FirstNFT — Kyiv, Ukraine
 
 > *"Trust -> Economic Enforcement -> Guaranteed Execution -> Credit Flywheel"*
 
