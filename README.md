@@ -210,6 +210,44 @@ LIFECYCLE COMPLETE
 
 ---
 
+
+## Demo Scripts
+
+### Happy Path — Full Lifecycle
+
+```bash
+export ANCHOR_WALLET=~/.config/solana/id.json
+export ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
+npx ts-node --esm demo/full-lifecycle.ts
+```
+
+7 шагов на живом devnet: lock → preCheck → execute → settle. Trust flywheel в действии: 50 → 51 → 53.
+
+### 🔴 Oracle Failure — Protection Demo
+
+```bash
+npx ts-node --esm demo/oracle-failure.ts
+```
+
+Сценарий: невалидный Pyth feed → `preCheck` падает on-chain → агент вызывает `revert` → **полный возврат USDC, потери 0**.
+
+3️⃣ Lock — escrow 1,000 USDC
+✅ Status: locked
+✅ Agent balance: 4000 USDC (1,000 in escrow)
+
+4️⃣ PreCheck — invalid feed → expects on-chain rejection
+❌ PreCheck TX: REJECTED — oracle validation failed
+✅ Error code: PriceStale
+✅ USDC: still locked safely in vault
+
+5️⃣ Revert — agent triggers full refund
+✅ Status: reverted
+✅ Refunded: 1000 USDC — full escrow returned
+✅ Agent loss: 0 USDC
+
+> Without ASP → funds frozen (see Drift Hack $285M, April 2026)
+> With ASP    → oracle fails → auto revert → full refund
+
 ## Security
 
 - **PDA authority** — vault USDC can only be moved by vault PDA signer seeds
