@@ -221,7 +221,7 @@ export ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
 npx ts-node --esm demo/full-lifecycle.ts
 ```
 
-7 шагов на живом devnet: lock → preCheck → execute → settle. Trust flywheel в действии: 50 → 51 → 53.
+7 steps on live devnet: lock → preCheck → execute → settle. Trust flywheel in action: 50 → 51 → 53.
 
 ### 🔴 Oracle Failure — Protection Demo
 
@@ -229,11 +229,11 @@ npx ts-node --esm demo/full-lifecycle.ts
 npx ts-node --esm demo/oracle-failure.ts
 ```
 
-Сценарий: невалидный Pyth feed → `preCheck` падает on-chain → агент вызывает `revert` → **полный возврат USDC, потери 0**.
+Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `revert` → **full USDC refund, zero agent loss**.
 
 3️⃣ Lock — escrow 1,000 USDC
 ✅ Status: locked
-✅ Agent balance: 4000 USDC (1,000 in escrow)
+✅ Agent balance: 4,000 USDC (1,000 in escrow)
 
 4️⃣ PreCheck — invalid feed → expects on-chain rejection
 ❌ PreCheck TX: REJECTED — oracle validation failed
@@ -242,7 +242,7 @@ npx ts-node --esm demo/oracle-failure.ts
 
 5️⃣ Revert — agent triggers full refund
 ✅ Status: reverted
-✅ Refunded: 1000 USDC — full escrow returned
+✅ Refunded: 1,000 USDC — full escrow returned
 ✅ Agent loss: 0 USDC
 
 > Without ASP → funds frozen (see Drift Hack $285M, April 2026)
