@@ -71,7 +71,9 @@ ASP wraps every agent strategy in a settlement envelope:
 
 Every position becomes a transferable Settlement NFT with embedded settlement logic.
 
+```
 Settlement NFT = position + settlement conditions + trust metadata
+```
 
 The agent can sell the NFT without closing the position.
 The buyer inherits the position AND all settlement guarantees.
@@ -112,7 +114,9 @@ Fully algorithmic. No credit committee. No human in the loop.
 | 81-100 | Institutional | 0.15% | 0% |
 
 **Trust Flywheel:**
+```
 More settlements -> Higher trust -> Lower fee + Less collateral -> More settlements
+```
 
 ---
 
@@ -176,31 +180,33 @@ npx ts-node --esm demo/full-lifecycle.ts
 ```
 
 Expected output:
+```
 1 Setup: USDC mint + token accounts
-USDC Mint: ...
-Minted USDC: 10,000 USDC -> agent
+  USDC Mint: ...
+  Minted USDC: 10,000 USDC -> agent
 
 2 Init Reputation
-Trust Score: 50/100
+  Trust Score: 50/100
 
 3 Lock - escrow 1,000 USDC
-Status: locked
+  Status: locked
 
 4 Pyth Mock Feed
-Price: $1.000000
+  Price: $1.000000
 
 5 PreCheck - validate price on-chain
-Status: preChecked
+  Status: preChecked
 
 6 Execute - fill at $1.05
-Trust Score: 51/100 (+1)
+  Trust Score: 51/100 (+1)
 
 7 Settle - fee deducted
-Status: settled
-Fee paid: 5 USDC
-Trust Score: 53/100 (+2)
+  Status: settled
+  Fee paid: 5 USDC
+  Trust Score: 53/100 (+2)
 
 LIFECYCLE COMPLETE
+```
 
 ---
 
