@@ -19,7 +19,7 @@ use settle::*;
 use state::*;
 use init_reputation::*;
 
-declare_id!("FfAjYkk4ktD3iHkF7jNes2p7EBZUR1mwBrbK4fGC3QXe");
+declare_id!("24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ");
 
 #[program]
 pub mod agentvault {

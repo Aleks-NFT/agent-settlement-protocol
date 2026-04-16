@@ -6,7 +6,10 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-agentvault = "FfAjYkk4ktD3iHkF7jNes2p7EBZUR1mwBrbK4fGC3QXe"
+agentvault = "24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ"
+
+[programs.localnet]
+agentvault = "24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ"
 
 [registry]
 url = "https://api.apr.dev"
@@ -20,5 +23,3 @@ members = ["programs/agentvault"]
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
-
-
