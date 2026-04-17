@@ -19,12 +19,12 @@ Nobody is solving Settlement Problem: what happens AFTER the oracle decides, for
 
 ### Two Real Failures That Prove This
 
-**UMA Governance Attack — $7M stolen (March 2025)**
+**UMA Governance Attack - $7M stolen (March 2025)**
 A single whale with 25% of UMA voting tokens forced a false resolution on Polymarket.
 $7M went to the manipulator irreversibly. Polymarket response: "no refunds, not a market failure."
 Root cause: settlement was final with no post-condition verification layer.
 
-**Settlement Divergence — $57M volume (February 2026)**
+**Settlement Divergence - $57M volume (February 2026)**
 Same Super Bowl event. Same moment. Two different outcomes:
 - Kalshi settled YES at $0.26
 - Polymarket settled YES at $1.00
@@ -32,16 +32,16 @@ Same Super Bowl event. Same moment. Two different outcomes:
 An agent arbitraging both platforms lost on both sides simultaneously.
 No rollback. No protection. CFTC complaint filed.
 
-**Drift Hack — $285M stolen (April 2026)**
+**Drift Hack - $285M stolen (April 2026)**
 The largest DeFi hack of 2026. Drift suspended all deposits and withdrawals mid-session.
-Agents running active strategies had zero recourse — no atomic revert, no protection layer, no refund.
+Agents running active strategies had zero recourse - no atomic revert, no protection layer, no refund.
 Root cause: no settlement envelope around agent positions.
 
 ---
 
 ## What ASP Builds
 
-Agent Settlement Protocol (ASP) — the first on-chain clearing house for AI agents on Solana.
+Agent Settlement Protocol (ASP) - the first on-chain clearing house for AI agents on Solana.
 
 **Without AgentVault:**
 Agent -> Buy YES $5K -> Swap USDC to SOL -> Reinvest
@@ -61,13 +61,13 @@ Prediction markets do $2B+ per week. 14 of 20 top traders are bots.
 These bots have no clearing house. AgentVault is building it.
 
 ASP wraps every agent strategy in a settlement envelope:
-- **Multi-step atomic execution** — buy, claim, reinvest as one atomic transaction
-- **Cross-venue protection** — Kalshi divergence triggers atomic revert
-- **Trust-weighted economics** — on-chain reputation sets fee and collateral
+- **Multi-step atomic execution** - buy, claim, reinvest as one atomic transaction
+- **Cross-venue protection** - Kalshi divergence triggers atomic revert
+- **Trust-weighted economics** - on-chain reputation sets fee and collateral
 
 ---
 
-## Settlement NFT — Key Innovation
+## Settlement NFT - Key Innovation
 
 Every position becomes a transferable Settlement NFT with embedded settlement logic.
 
@@ -223,7 +223,7 @@ npx ts-node --esm demo/full-lifecycle.ts
 
 7 steps on live devnet: lock → preCheck → execute → settle. Trust flywheel in action: 50 → 51 → 53.
 
-### 🔴 Oracle Failure — Protection Demo
+### 🔴 Oracle Failure - Protection Demo
 
 ```bash
 npx ts-node --esm demo/oracle-failure.ts
@@ -231,18 +231,18 @@ npx ts-node --esm demo/oracle-failure.ts
 
 Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `revert` → **full USDC refund, zero agent loss**.
 
-3️⃣ Lock — escrow 1,000 USDC
+3️⃣ Lock - escrow 1,000 USDC
 ✅ Status: locked
 ✅ Agent balance: 4,000 USDC (1,000 in escrow)
 
-4️⃣ PreCheck — invalid feed → expects on-chain rejection
-❌ PreCheck TX: REJECTED — oracle validation failed
+4️⃣ PreCheck - invalid feed → expects on-chain rejection
+❌ PreCheck TX: REJECTED - oracle validation failed
 ✅ Error code: PriceStale
 ✅ USDC: still locked safely in vault
 
-5️⃣ Revert — agent triggers full refund
+5️⃣ Revert - agent triggers full refund
 ✅ Status: reverted
-✅ Refunded: 1,000 USDC — full escrow returned
+✅ Refunded: 1,000 USDC - full escrow returned
 ✅ Agent loss: 0 USDC
 
 > Without ASP → funds frozen (see Drift Hack $285M, April 2026)
@@ -250,7 +250,7 @@ Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `re
 
 ## Security
 
-- **PDA authority** — vault USDC can only be moved by vault PDA signer seeds
+- **PDA authority** - vault USDC can only be moved by vault PDA signer seeds
 - **Revival attack protection** — `vault.is_closed = true` prevents double-spend
 - **Timeout enforcement** — `timeout_slot` checked on every instruction
 - **Arithmetic safety** — all math via `checked_*` ops, zero unchecked overflow
@@ -288,10 +288,10 @@ Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `re
 
 ## Hackathon
 
-**Colosseum Frontier** — April 6 to May 11, 2026 — Prize pool $2.5M
-**Superteam Ukraine Track** — 10K USDG
+**Colosseum Frontier** - April 6 to May 11, 2026 - Prize pool $2.5M
+**Superteam Ukraine Track** - 10K USDG
 
-Author: Aleks @FirstNFT — Kyiv, Ukraine
+Author: Aleks @FirstNFT - Kyiv, Ukraine
 
 > *"Trust -> Economic Enforcement -> Guaranteed Execution -> Credit Flywheel"*
 
