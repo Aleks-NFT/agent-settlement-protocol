@@ -213,7 +213,7 @@ LIFECYCLE COMPLETE
 
 ## Demo Scripts
 
-### Happy Path — Full Lifecycle
+### Happy Path - Full Lifecycle
 
 ```bash
 export ANCHOR_WALLET=~/.config/solana/id.json
@@ -251,10 +251,10 @@ Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `re
 ## Security
 
 - **PDA authority** - vault USDC can only be moved by vault PDA signer seeds
-- **Revival attack protection** — `vault.is_closed = true` prevents double-spend
-- **Timeout enforcement** — `timeout_slot` checked on every instruction
-- **Arithmetic safety** — all math via `checked_*` ops, zero unchecked overflow
-- **Pyth validation** — magic bytes `0xa1b2c3e4`, staleness <=1h, confidence <=2%
+- **Revival attack protection** - `vault.is_closed = true` prevents double-spend
+- **Timeout enforcement** - `timeout_slot` checked on every instruction
+- **Arithmetic safety** - all math via `checked_*` ops, zero unchecked overflow
+- **Pyth validation** - magic bytes `0xa1b2c3e4`, staleness <=1h, confidence <=2%
 
 ---
 
