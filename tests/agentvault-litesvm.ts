@@ -89,7 +89,7 @@ describe("agentvault [litesvm]", () => {
   const collateralRatio = (s) => s <= 20 ? 150 : s <= 50 ? 100 : s <= 80 ? 50 : 0;
 
   // ── Unit: PDA ─────────────────────────────────────────────────────────────
-  it("PDA: settlement_nft, vault, reputation уникальны", async () => {
+  it("PDA: settlement_nft, vault, reputation are unique", async () => {
     const agent = Keypair.generate();
     const marketId = Keypair.generate().publicKey;
     const [nft, nftBump] = PublicKey.findProgramAddressSync(
@@ -114,14 +114,14 @@ describe("agentvault [litesvm]", () => {
   });
 
   // ── Unit: PolicyController ────────────────────────────────────────────────
-  it("PolicyController: fee_bps по всем диапазонам trust_score", () => {
+  it("PolicyController: fee_bps across all trust_score ranges", () => {
     assert.equal(feeBps(0), 75);   assert.equal(feeBps(20), 75);
     assert.equal(feeBps(21), 50);  assert.equal(feeBps(50), 50);
     assert.equal(feeBps(51), 35);  assert.equal(feeBps(80), 35);
     assert.equal(feeBps(81), 15);  assert.equal(feeBps(100), 15);
   });
 
-  it("PolicyController: collateral_ratio по всем диапазонам trust_score", () => {
+  it("PolicyController: collateral_ratio across all trust_score ranges", () => {
     assert.equal(collateralRatio(0), 150);   assert.equal(collateralRatio(20), 150);
     assert.equal(collateralRatio(21), 100);  assert.equal(collateralRatio(50), 100);
     assert.equal(collateralRatio(51), 50);   assert.equal(collateralRatio(80), 50);
@@ -139,7 +139,7 @@ describe("agentvault [litesvm]", () => {
   });
 
   // ── Integration: init_reputation ─────────────────────────────────────────
-  it("init_reputation: trust_score=50, поля обнулены", async () => {
+  it("init_reputation: trust_score=50, all fields zeroed", async () => {
     const agent = Keypair.generate();
     airdrop(agent.publicKey);
     const repPda = await setupReputation(agent);
@@ -151,7 +151,7 @@ describe("agentvault [litesvm]", () => {
     assert.equal(rep.agent.toBase58(), agent.publicKey.toBase58());
   });
 
-  it("init_reputation: разные агенты — разные PDA", async () => {
+  it("init_reputation: different agents produce different PDAs", async () => {
     const agent1 = Keypair.generate();
     const agent2 = Keypair.generate();
     airdrop(agent1.publicKey); airdrop(agent2.publicKey);
@@ -179,7 +179,7 @@ describe("agentvault [litesvm]", () => {
   });
 
   // ── Integration: lock → revert ────────────────────────────────────────────
-  it("lock → revert: status=Reverted, vault.isClosed=true, trust_score-=1", async () => {
+  it("lock → revert: status=Reverted, vault.isClosed=true, trust_score decremented", async () => {
     const agent = Keypair.generate();
     airdrop(agent.publicKey);
     const repPda = await setupReputation(agent);
@@ -197,7 +197,7 @@ describe("agentvault [litesvm]", () => {
     assert.equal(rep.trustScore, 49);
   });
 
-  it("revert повторно → VaultClosed", async () => {
+  it("revert twice → VaultClosed", async () => {
     const agent = Keypair.generate();
     airdrop(agent.publicKey);
     const repPda = await setupReputation(agent);
@@ -209,12 +209,12 @@ describe("agentvault [litesvm]", () => {
     await program.methods.revert({ agentInitiated: {} }).accounts(accs).signers([agent]).rpc();
     try {
       await program.methods.revert({ agentInitiated: {} }).accounts(accs).signers([agent]).rpc();
-      assert.fail("Ожидалась ошибка VaultClosed");
+      assert.fail("Expected VaultClosed error");
     } catch (err) { assert.ok(err, "Expected error: vault already closed"); }
   });
 
   // ── Integration: lock → pre_check → execute_trade ─────────────────────────
-  it("lock → pre_check → execute_trade: статусы + trust_score+=1", async () => {
+  it("lock → pre_check → execute_trade: statuses correct + trust_score incremented", async () => {
     const agent = Keypair.generate();
     airdrop(agent.publicKey);
     const repPda = await setupReputation(agent);
@@ -242,7 +242,7 @@ describe("agentvault [litesvm]", () => {
     assert.equal(rep.trustScore, 51);
   });
 
-  it("execute_trade без pre_check → InvalidStatus", async () => {
+  it("execute_trade without pre_check → InvalidStatus", async () => {
     const agent = Keypair.generate();
     airdrop(agent.publicKey);
     const repPda = await setupReputation(agent);
@@ -254,7 +254,7 @@ describe("agentvault [litesvm]", () => {
       await program.methods.executeTrade(new BN(1_000_000))
         .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
         .signers([agent]).rpc();
-      assert.fail("Ожидалась ошибка InvalidStatus");
+      assert.fail("Expected InvalidStatus error");
     } catch (err) { assert.include(err.message, "InvalidStatus"); }
   });
 
@@ -278,12 +278,12 @@ describe("agentvault [litesvm]", () => {
       await program.methods.executeTrade(new BN(0))
         .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
         .signers([agent]).rpc();
-      assert.fail("Ожидалась ошибка InvalidFillPrice");
+      assert.fail("Expected InvalidFillPrice error");
     } catch (err) { assert.include(err.message, "InvalidFillPrice"); }
   });
 
   // ── Integration: settle ───────────────────────────────────────────────────
-  it("lock → pre_check → execute → settle: статус Settled, trust_score+=2", async () => {
+  it("lock → pre_check → execute → settle: status=Settled, trust_score+=2", async () => {
     const agent = Keypair.generate();
     airdrop(agent.publicKey);
     const repPda = await setupReputation(agent);
@@ -325,11 +325,11 @@ describe("agentvault [litesvm]", () => {
 
     const nft = await program.account.settlementNft.fetch(nftPda);
     const rep = await program.account.reputationAccount.fetch(repPda);
-    assert.deepEqual(nft.status, { settled: {} }, "status должен быть Settled");
-    assert.isAtLeast(rep.trustScore, 52, "trust_score должен вырасти минимум на +2");
+    assert.deepEqual(nft.status, { settled: {} }, "status should be Settled");
+    assert.isAtLeast(rep.trustScore, 52, "trust_score should increase by at least +2");
   });
 
-  it("settle без execute → InvalidStatus", async () => {
+  it("settle without execute → InvalidStatus", async () => {
     const agent = Keypair.generate();
     airdrop(agent.publicKey);
     const repPda = await setupReputation(agent);
