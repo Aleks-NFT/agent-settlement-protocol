@@ -47,3 +47,7 @@ The market builds payment rails (Venmo for agents). We build the Clearing House 
 
 ## Owner
 Piter (@FirstNFT), Kyiv | Status: MVP build for Colosseum Frontier 2026
+
+## Design System
+See [DESIGN.md](./DESIGN.md) for full token system, typography rules, component patterns and anti-patterns.
+All Claude sessions building AgentVault UI must load this file before generating any visual output.
