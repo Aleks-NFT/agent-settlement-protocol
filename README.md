@@ -328,3 +328,12 @@ Prints live Solana Explorer links for every transaction.
 - TX lock: `5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt`
 - TX list\_for\_sale: `5sCMaHeRQZALwMS4tFe7J7yp1ZFJ8jwcJfPuEmviyAqpqzwfJcb1n9t2R5Z124JtJS43W2g9RxpDYDQ5bKs4gvMB`
 - TX buy\_settlement: `3jgtf6NShro1afXL7JR4CsuJRcjUuPstLsTVzxoSgqJ3cQ8ikZX2d9TpLPzrsv17bG55X8vtEYnk98o8AebF9gwr`
+
+## Quick Start (devnet, 3 commands)
+
+```bash
+git clone https://github.com/Aleks-NFT/agent-settlement-protocol
+cd agent-settlement-protocol
+npm install
+npx ts-node --esm demo/full-lifecycle.ts
+```
