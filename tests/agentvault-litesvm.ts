@@ -425,4 +425,134 @@ describe("agentvault [litesvm]", () => {
       );
     }
   });
+
+  // ── Factoring / Early Exit (v0.4.0) ─────────────────────────────────────
+
+  it("list_for_sale: happy path — NFT listed with ask_price", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+    const { nftPda } = await setupLock(agent, repPda, usdcMint, agentUsdc, new BN(1_000_000));
+    const slot = Number(provider.client.getClock().slot);
+    await program.methods.listForSale(new BN(500_000), new BN(slot + 1000))
+      .accounts({ seller: agent.publicKey, settlementNft: nftPda })
+      .signers([agent]).rpc();
+    const nft = await program.account.settlementNft.fetch(nftPda);
+    assert.ok(nft.listingStatus.listed !== undefined, "expected Listed");
+    assert.ok(nft.askPrice.eq(new BN(500_000)), "ask_price mismatch");
+  });
+
+  it("list_for_sale: AlreadyListed — cannot list twice", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+    const { nftPda } = await setupLock(agent, repPda, usdcMint, agentUsdc, new BN(1_000_000));
+    const slot = Number(provider.client.getClock().slot);
+    await program.methods.listForSale(new BN(500_000), new BN(slot + 1000))
+      .accounts({ seller: agent.publicKey, settlementNft: nftPda }).signers([agent]).rpc();
+    try {
+      await program.methods.listForSale(new BN(500_000), new BN(slot + 2000))
+        .accounts({ seller: agent.publicKey, settlementNft: nftPda }).signers([agent]).rpc();
+      assert.fail("expected AlreadyListed");
+    } catch (err: any) {
+      assert.ok(err.message?.includes("AlreadyListed") || err.error?.errorCode?.code === "AlreadyListed",
+        `Expected AlreadyListed, got: ${err.message}`);
+    }
+  });
+
+  it("list_for_sale: InvalidAskPrice — ask_price=0 rejected", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+    const { nftPda } = await setupLock(agent, repPda, usdcMint, agentUsdc, new BN(1_000_000));
+    const slot = Number(provider.client.getClock().slot);
+    try {
+      await program.methods.listForSale(new BN(0), new BN(slot + 1000))
+        .accounts({ seller: agent.publicKey, settlementNft: nftPda }).signers([agent]).rpc();
+      assert.fail("expected InvalidAskPrice");
+    } catch (err: any) {
+      assert.ok(err.message?.includes("InvalidAskPrice") || err.error?.errorCode?.code === "InvalidAskPrice",
+        `Expected InvalidAskPrice, got: ${err.message}`);
+    }
+  });
+
+  it("buy_settlement: CannotBuyOwnListing — seller cannot buy own NFT", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+    const { nftPda } = await setupLock(agent, repPda, usdcMint, agentUsdc, new BN(1_000_000));
+    const slot = Number(provider.client.getClock().slot);
+    await program.methods.listForSale(new BN(500_000), new BN(slot + 1000))
+      .accounts({ seller: agent.publicKey, settlementNft: nftPda }).signers([agent]).rpc();
+    try {
+      await program.methods.buySettlement()
+        .accounts({ buyer: agent.publicKey, settlementNft: nftPda,
+          sellerUsdc: agentUsdc, buyerUsdc: agentUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID })
+        .signers([agent]).rpc();
+      assert.fail("expected CannotBuyOwnListing");
+    } catch (err: any) {
+      assert.ok(err.message?.includes("CannotBuyOwnListing") || err.error?.errorCode?.code === "CannotBuyOwnListing",
+        `Expected CannotBuyOwnListing, got: ${err.message}`);
+    }
+  });
+
+  it("buy_settlement: NotListed — cannot buy unlisted NFT", async () => {
+    const seller = Keypair.generate();
+    const buyer = Keypair.generate();
+    airdrop(seller.publicKey); airdrop(buyer.publicKey);
+    const repPda = await setupReputation(seller);
+    const usdcMint = await createTestMint(seller);
+    const sellerUsdc = await createTestTokenAccount(seller, usdcMint, seller);
+    const buyerUsdc = await createTestTokenAccount(seller, usdcMint, buyer);
+    await mintTokens(seller, usdcMint, sellerUsdc, seller, 10_000_000_000);
+    await mintTokens(seller, usdcMint, buyerUsdc, seller, 10_000_000_000);
+    const { nftPda } = await setupLock(seller, repPda, usdcMint, sellerUsdc, new BN(1_000_000));
+    try {
+      await program.methods.buySettlement()
+        .accounts({ buyer: buyer.publicKey, settlementNft: nftPda,
+          sellerUsdc, buyerUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID })
+        .signers([buyer]).rpc();
+      assert.fail("expected NotListed");
+    } catch (err: any) {
+      assert.ok(err.message?.includes("NotListed") || err.error?.errorCode?.code === "NotListed",
+        `Expected NotListed, got: ${err.message}`);
+    }
+  });
+
+  it("buy_settlement: happy path — USDC transferred, current_owner updated", async () => {
+    const seller = Keypair.generate();
+    const buyer = Keypair.generate();
+    airdrop(seller.publicKey); airdrop(buyer.publicKey);
+    const repPda = await setupReputation(seller);
+    const usdcMint = await createTestMint(seller);
+    const sellerUsdc = await createTestTokenAccount(seller, usdcMint, seller);
+    const buyerUsdc = await createTestTokenAccount(seller, usdcMint, buyer);
+    await mintTokens(seller, usdcMint, sellerUsdc, seller, 10_000_000_000);
+    await mintTokens(seller, usdcMint, buyerUsdc, seller, 10_000_000_000);
+    const { nftPda } = await setupLock(seller, repPda, usdcMint, sellerUsdc, new BN(1_000_000));
+    const slot = Number(provider.client.getClock().slot);
+    await program.methods.listForSale(new BN(500_000), new BN(slot + 1000))
+      .accounts({ seller: seller.publicKey, settlementNft: nftPda }).signers([seller]).rpc();
+    await program.methods.buySettlement()
+      .accounts({ buyer: buyer.publicKey, settlementNft: nftPda,
+        sellerUsdc, buyerUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID })
+      .signers([buyer]).rpc();
+    const nft = await program.account.settlementNft.fetch(nftPda);
+    assert.equal(nft.currentOwner.toBase58(), buyer.publicKey.toBase58(), "current_owner not updated");
+    assert.ok(nft.listingStatus.transferred !== undefined, "expected Transferred");
+    assert.ok(nft.askPrice.eq(new BN(0)), "ask_price should be zeroed");
+  });
+
 });

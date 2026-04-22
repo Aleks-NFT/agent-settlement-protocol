@@ -114,7 +114,12 @@ pub fn handler(
         .checked_add(timeout_slots)
         .ok_or(AspError::ArithmeticOverflow)?;
     nft.fallback_action    = FallbackAction::RevertFull;
+    nft.current_owner      = ctx.accounts.agent.key();
     nft.transferable       = true;
+    nft.listing_status     = crate::state::ListingStatus::Active;
+    nft.ask_price          = 0;
+    nft.listed_at_slot     = 0;
+    nft.listing_expires_slot = 0;
     nft.bump               = ctx.bumps.settlement_nft;
 
     // 5. Инициализируем Vault
