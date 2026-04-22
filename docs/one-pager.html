@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Settlement Protocol — One-Pager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg-base:        #0a0a0a;
+    --color-bg-surface:     #111111;
+    --color-bg-elevated:    #1a1a1a;
+    --color-border-subtle:  #1f1f1f;
+    --color-border-default: #2a2a2a;
+    --color-border-strong:  #3a3a3a;
+    --color-accent:         #4ade80;
+    --color-accent-glow:    rgba(74, 222, 128, 0.12);
+    --color-text-primary:   #ffffff;
+    --color-text-secondary: #d1d5db;
+    --color-text-muted:     #6b7280;
+    --color-error:          #f87171;
+    --color-info:           #60a5fa;
+    --font-ui:   'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--color-bg-base); color: var(--color-text-primary); font-family: var(--font-ui); font-size: 0.9375rem; line-height: 1.5; padding: 48px 24px; }
+  .page { max-width: 720px; margin: 0 auto; }
+  .header { margin-bottom: 40px; }
+  .header-label { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 12px; }
+  .header h1 { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; color: var(--color-text-primary); margin-bottom: 8px; }
+  .header .tagline { font-size: 1.0625rem; color: var(--color-text-secondary); font-weight: 400; }
+  .header .sub { margin-top: 12px; font-size: 0.8125rem; color: var(--color-text-muted); line-height: 1.6; max-width: 600px; }
+  hr { border: none; border-top: 1px solid var(--color-border-default); margin: 28px 0; }
+  .section { margin-bottom: 32px; }
+  .section-label { font-family: var(--font-ui); font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 14px; }
+  .envelope { font-family: var(--font-mono); font-size: 0.8125rem; background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-left: 3px solid var(--color-accent); border-radius: 3px; padding: 14px 16px; margin-bottom: 16px; line-height: 1.65; white-space: pre; overflow-x: auto; }
+  .envelope .kw { color: var(--color-accent); }
+  .envelope .dim { color: var(--color-text-muted); }
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .feature-list li { font-size: 0.8125rem; color: var(--color-text-secondary); padding-left: 16px; position: relative; line-height: 1.55; }
+  .feature-list li::before { content: '—'; position: absolute; left: 0; color: var(--color-accent); font-family: var(--font-mono); }
+  .feature-list li strong { color: var(--color-text-primary); font-weight: 500; }
+  .feature-list li code { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-accent); background: var(--color-accent-glow); padding: 1px 5px; border-radius: 2px; }
+  .hard-list { list-style: none; display: flex; flex-direction: column; gap: 10px; counter-reset: hard; }
+  .hard-list li { font-size: 0.8125rem; color: var(--color-text-secondary); padding-left: 28px; position: relative; line-height: 1.55; counter-increment: hard; }
+  .hard-list li::before { content: counter(hard); position: absolute; left: 0; font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-accent); background: var(--color-accent-glow); width: 18px; height: 18px; border-radius: 2px; display: flex; align-items: center; justify-content: center; top: 1px; }
+  .hard-list li strong { color: var(--color-text-primary); font-weight: 500; }
+  .hard-list li code { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-secondary); }
+  .proof-grid { display: flex; flex-direction: column; gap: 10px; }
+  .proof-row { display: flex; align-items: baseline; gap: 12px; font-size: 0.8125rem; }
+  .proof-label { font-family: var(--font-ui); font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); min-width: 120px; flex-shrink: 0; }
+  .proof-value { color: var(--color-text-secondary); font-family: var(--font-mono); font-size: 0.75rem; }
+  .proof-value.highlight { color: var(--color-accent); }
+  .tag-list { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-family: var(--font-mono); font-size: 0.6875rem; padding: 2px 8px; border-radius: 2px; border: 1px solid var(--color-border-strong); color: var(--color-accent); letter-spacing: 0.04em; }
+  .tx-list { display: flex; flex-direction: column; gap: 4px; }
+  .tx-row { display: flex; gap: 10px; align-items: flex-start; }
+  .tx-name { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--color-text-muted); min-width: 110px; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 1px; }
+  .tx-hash { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--color-text-secondary); word-break: break-all; }
+  .tx-hash a { color: var(--color-accent); text-decoration: none; font-size: 0.6875rem; margin-left: 6px; opacity: 0.7; }
+  .tx-hash a:hover { opacity: 1; }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th { font-family: var(--font-ui); font-size: 0.6875rem; font-weight: 500; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; border-bottom: 1px solid var(--color-border-default); text-align: left; }
+  .data-table td { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-primary); padding: 8px 12px; border-bottom: 1px solid var(--color-border-subtle); vertical-align: top; line-height: 1.5; }
+  .data-table td.loss { color: var(--color-error); }
+  .data-table td.fix { color: var(--color-accent); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .code-block { background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-left: 3px solid var(--color-accent); border-radius: 3px; padding: 14px 16px; font-family: var(--font-mono); font-size: 0.8125rem; line-height: 1.65; overflow-x: auto; color: var(--color-text-secondary); }
+  .code-block .prompt { color: var(--color-text-muted); user-select: none; }
+  .code-block .cmd { color: var(--color-text-primary); }
+  .cta-row { display: flex; align-items: center; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+  .cta-link { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--color-accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms; }
+  .cta-link:hover { border-color: var(--color-accent); }
+  .team-line { font-size: 0.8125rem; color: var(--color-text-secondary); }
+  .team-line .handle { font-family: var(--font-mono); color: var(--color-accent); }
+  .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.6875rem; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.06em; text-transform: uppercase; margin-left: 4px; }
+  .badge-green { color: #4ade80; background: rgba(74,222,128,0.1); }
+  .badge-blue { color: #60a5fa; background: rgba(96,165,250,0.1); }
+  .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--color-border-default); display: flex; justify-content: space-between; align-items: center; }
+  .footer-left { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--color-text-muted); }
+  .footer-right { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--color-text-muted); }
+  @media print { body { padding: 24px; background: #0a0a0a; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { max-width: 100%; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-label">Colosseum Frontier 2026 &nbsp;·&nbsp; Solana &nbsp;·&nbsp; Rust + Anchor</div>
+    <h1>Agent Settlement Protocol</h1>
+    <div class="tagline">Atomic (all-or-nothing) clearing house for AI agents on Solana.</div>
+    <div class="sub">Every agent strategy wrapped in an envelope that either completes atomically or reverts in full. No partial fills. No frozen funds. No false oracle resolutions.</div>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <div class="section-label">What We Built</div>
+    <div class="envelope"><span class="kw">LOCK</span> → <span class="kw">PRE-CHECK</span> → <span class="kw">EXECUTE</span> → <span class="kw">POST-CHECK</span> → <span class="kw">SETTLE</span>
+<span class="dim">                                              ↘ REVERT</span> <span class="dim">(any stage)</span></div>
+    <ul class="feature-list">
+      <li><strong>Trust-weighted PolicyController</strong> — fee (0.15–0.75%) and collateral (0–150%) scale algorithmically with trust score 0–100. Fully algorithmic, no human-in-the-loop.</li>
+      <li><strong>Settlement NFT</strong> — position is transferable mid-flight. New owner inherits settlement guarantees; PolicyController recalculates terms for their trust tier.</li>
+      <li><strong>Factoring</strong> — <code>LIST_FOR_SALE</code> + <code>BUY_SETTLEMENT</code>: sell position at a discount before resolution. Atomic, one transaction.</li>
+      <li><strong>Pyth-guarded pre-checks</strong> — price tolerance, liquidity floor, and timeout slot validated on-chain before any execution.</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <div class="section-label">Why It's Hard</div>
+    <ol class="hard-list">
+      <li><strong>Revival attack protection</strong> — <code>vault.is_closed</code> flag set on execute; prevents resurrection of reverted vaults.</li>
+      <li><strong>Mid-flight ownership transfer</strong> — Settlement NFT carries escrow PDA reference; <code>BUY_SETTLEMENT</code> swaps <code>current_owner</code> and inherits settlement guarantees for the new wallet.</li>
+      <li><strong>Atomic revert across multi-step chains</strong> — REVERT callable at any stage (Locked / PreChecked / Executed). Full escrow refund guaranteed.</li>
+      <li><strong>Algorithmic trust without governance</strong> — PolicyController is pure math: no DAO vote, no admin override, no human approval path.</li>
+    </ol>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <div class="section-label">Proof It Works</div>
+    <div class="proof-grid">
+      <div class="proof-row">
+        <div class="proof-label">Tests</div>
+        <div class="proof-value highlight">19/19 passing <span class="badge badge-blue">LiteSVM</span></div>
+      </div>
+      <div class="proof-row">
+        <div class="proof-label">Tags shipped</div>
+        <div class="tag-list">
+          <span class="tag">v0.3.0-settle-green</span>
+          <span class="tag">v0.3.1-precheck-pyth</span>
+          <span class="tag">v0.4.0-factoring-green</span>
+        </div>
+      </div>
+      <div class="proof-row">
+        <div class="proof-label">Devnet TXs</div>
+        <div class="tx-list">
+          <div class="tx-row">
+            <span class="tx-name">lock</span>
+            <span class="tx-hash">5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt <a href="https://explorer.solana.com/tx/5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt?cluster=devnet" target="_blank">↗</a></span>
+          </div>
+          <div class="tx-row">
+            <span class="tx-name">list_for_sale</span>
+            <span class="tx-hash">5sCMaHeRQZALwMS4tFe7J7yp1ZFJ8jwcJfPuEmviyAqpqzwfJcb1n9t2R5Z124JtJS43W2g9RxpDYDQ5bKs4gvMB</span>
+          </div>
+          <div class="tx-row">
+            <span class="tx-name">buy_settlement</span>
+            <span class="tx-hash">3jgtf6NShro1afXL7JR4CsuJRcjUuPstLsTVzxoSgqJ3cQ8ikZX2d9TpLPzrsv17bG55X8vtEYnk98o8AebF9gwr</span>
+          </div>
+        </div>
+      </div>
+      <div class="proof-row">
+        <div class="proof-label">Program ID</div>
+        <div class="proof-value">24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ</div>
+      </div>
+      <div class="proof-row">
+        <div class="proof-label">Demo scripts</div>
+        <div class="proof-value">full-lifecycle.ts &nbsp;·&nbsp; factoring-flow.ts &nbsp;·&nbsp; oracle-failure.ts</div>
+      </div>
+      <div class="proof-row">
+        <div class="proof-label">Test suite</div>
+        <div class="proof-value"><a href="https://github.com/Aleks-NFT/agent-settlement-protocol/blob/main/tests/agentvault-litesvm.ts" target="_blank" style="color:var(--color-accent);text-decoration:none;">tests/agentvault-litesvm.ts ↗</a></div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <div class="section-label">Market</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Incident</th><th>Loss</th><th>Root Cause</th><th>ASP Fix</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>UMA governance attack (2025)</td>
+          <td class="loss">$7M</td>
+          <td>False oracle resolution, no refund path</td>
+          <td class="fix">POST-CHECK + atomic revert</td>
+        </tr>
+        <tr>
+          <td>Super Bowl divergence (2026)</td>
+          <td class="loss">Unresolved (both sides)</td>
+          <td>Same event: $0.26 vs $1.00 across venues</td>
+          <td class="fix">Cross-venue revert architecture</td>
+        </tr>
+        <tr>
+          <td>Drift hack (2026)</td>
+          <td class="loss">$285M</td>
+          <td>No atomic rollback, funds frozen</td>
+          <td class="fix">REVERT at any stage, full refund</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:10px;font-size:0.75rem;color:var(--color-text-muted);">Wedge: prediction-market agents running multi-step strategies with zero recourse today.</div>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <div class="section-label">Team</div>
+    <div class="team-line">Piter <span class="handle">@FirstNFT</span>, Kyiv — solo builder. Five weeks, production Rust + Anchor.</div>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <div class="section-label">Try It</div>
+    <div class="code-block"><span class="prompt">$ </span><span class="cmd">git clone https://github.com/Aleks-NFT/agent-settlement-protocol</span>
+<span class="prompt">$ </span><span class="cmd">cd agent-settlement-protocol && npm install</span>
+<span class="prompt">$ </span><span class="cmd">npx ts-node --esm demo/full-lifecycle.ts</span></div>
+    <div class="cta-row">
+      <a class="cta-link" href="https://github.com/Aleks-NFT/agent-settlement-protocol">github.com/Aleks-NFT/agent-settlement-protocol</a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">Agent Settlement Protocol · MIT 2026</div>
+    <div class="footer-right">Colosseum Frontier 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
