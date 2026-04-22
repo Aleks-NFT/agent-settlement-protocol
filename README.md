@@ -300,3 +300,31 @@ Author: Aleks @FirstNFT - Kyiv, Ukraine
 ## License
 
 MIT 2026 AgentVault
+
+---
+
+## Early Exit Flow (Factoring)
+
+Bot A opens a position but needs liquidity before resolution — sells the Settlement NFT to Bot B at a 3% discount. Atomic, on-chain, one transaction.
+
+┌─────────────────────────────────────────────────────┐
+│ Bot A: LOCK → Settlement NFT minted │
+│ Bot A: LIST_FOR_SALE → ask_price = 0.97 USDC │
+│ Bot B: BUY_SETTLEMENT → becomes new owner │
+│ Vault collateral follows the NFT automatically │
+└─────────────────────────────────────────────────────┘
+
+### Run the demo
+
+```bash
+npx ts-node --esm demo/factoring-flow.ts
+```
+
+Requires a funded devnet wallet at `~/.config/solana/id.json`.  
+Prints live Solana Explorer links for every transaction.
+
+### Live devnet proof
+
+- TX lock: `5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt`
+- TX list\_for\_sale: `5sCMaHeRQZALwMS4tFe7J7yp1ZFJ8jwcJfPuEmviyAqpqzwfJcb1n9t2R5Z124JtJS43W2g9RxpDYDQ5bKs4gvMB`
+- TX buy\_settlement: `3jgtf6NShro1afXL7JR4CsuJRcjUuPstLsTVzxoSgqJ3cQ8ikZX2d9TpLPzrsv17bG55X8vtEYnk98o8AebF9gwr`
