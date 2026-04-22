@@ -9,6 +9,8 @@ pub mod execute_ix;
 pub mod revert;
 pub mod settle;
 pub mod init_reputation;
+pub mod list_for_sale;
+pub mod buy_settlement;
 
 use lock::*;
 use precheck::*;
@@ -18,6 +20,8 @@ use revert::*;
 use settle::*;
 use state::*;
 use init_reputation::*;
+use list_for_sale::*;
+use buy_settlement::*;
 
 declare_id!("24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ");
 
@@ -51,8 +55,17 @@ pub mod agentvault {
         revert::handler(ctx, reason)
     }
 
-
     pub fn settle(ctx: Context<Settle>) -> Result<()> {
         settle::handler(ctx)
+    }
+
+    // ── Factoring / Early Exit (v0.4.0) ──────────────────────────────
+    pub fn list_for_sale(ctx: Context<ListForSale>, ask_price: u64,
+        listing_expires_slot: u64) -> Result<()> {
+        list_for_sale::handler(ctx, ask_price, listing_expires_slot)
+    }
+
+    pub fn buy_settlement(ctx: Context<BuySettlement>) -> Result<()> {
+        buy_settlement::handler(ctx)
     }
 }
