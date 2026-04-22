@@ -1,6 +1,6 @@
 # Agent Settlement Protocol
 
-**Atomic clearing house for AI agents on Solana.**
+**Atomic (all-or-nothing) clearing house for AI agents on Solana.**
 
 Every agent strategy wrapped in an envelope that either completes atomically or reverts in full. No partial fills. No frozen funds. No false oracle resolutions.
 
@@ -40,10 +40,12 @@ LOCK → PRE-CHECK → EXECUTE → POST-CHECK → SETTLE
   - `v0.4.0-factoring-green` — list_for_sale + buy_settlement
 - **Live devnet transactions:**
   - lock: `5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt`
-  - list\_for\_sale: `5sCMaHeRQZALwMS4tFe7J7yp1ZFJ8jwcJfPuEmviyAqpqzwfJcb1n9t2R5Z124JtJS43W2g9RxpDYDQ5bKs4gvMB`
-  - buy\_settlement: `3jgtf6NShro1afXL7JR4CsuJRcjUuPstLsTVzxoSgqJ3cQ8ikZX2d9TpLPzrsv17bG55X8vtEYnk98o8AebF9gwr`
+  - [View lock TX on Solana Explorer](https://explorer.solana.com/tx/5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt?cluster=devnet)
+  - `list_for_sale`: `5sCMaHeRQZALwMS4tFe7J7yp1ZFJ8jwcJfPuEmviyAqpqzwfJcb1n9t2R5Z124JtJS43W2g9RxpDYDQ5bKs4gvMB`
+  - `buy_settlement`: `3jgtf6NShro1afXL7JR4CsuJRcjUuPstLsTVzxoSgqJ3cQ8ikZX2d9TpLPzrsv17bG55X8vtEYnk98o8AebF9gwr`
 - **Program ID:** `24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ` (devnet)
 - **3 demo scripts:** `full-lifecycle.ts`, `factoring-flow.ts`, `oracle-failure.ts`
+- **Test suite:** [`tests/agentvault-litesvm.ts`](tests/agentvault-litesvm.ts)
 
 ---
 
@@ -54,7 +56,7 @@ Three documented incidents that defined the gap:
 | Incident | Loss | Root Cause | ASP Fix |
 |---|---|---|---|
 | UMA governance attack (2025) | $7M | False oracle resolution, no refund path | POST-CHECK + atomic revert |
-| Super Bowl settlement divergence (2026) | Bilateral | Same event: $0.26 vs $1.00 across venues | Cross-venue revert architecture |
+| Super Bowl settlement divergence (2026) | Unresolved (both sides) | Same event: $0.26 vs $1.00 across venues | Cross-venue revert architecture |
 | Drift hack (2026) | $285M | No atomic rollback, funds frozen | REVERT at any stage, full refund |
 
 Wedge: prediction-market agents running multi-step strategies with zero recourse today.
