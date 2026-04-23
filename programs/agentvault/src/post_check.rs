@@ -31,7 +31,6 @@ pub struct PostCheck<'info> {
     #[account(
         seeds = [b"vault", settlement_nft.key().as_ref()],
         bump = vault.bump,
-        constraint = !vault.is_closed @ AspError::VaultClosed,
     )]
     pub vault: Account<'info, Vault>,
 
