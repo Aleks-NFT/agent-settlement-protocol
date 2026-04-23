@@ -647,6 +647,142 @@
           { "name": "AgentInitiated" }
         ]
       }
+    },
+    {
+      "name": "SettlementCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "amount", "type": "u64" },
+          { "name": "feeBps", "type": "u16" },
+          { "name": "collateralRatio", "type": "u16" },
+          { "name": "trustScore", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "PreCheckPassed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "pythPrice", "type": "i64" },
+          { "name": "expectedPrice", "type": "u64" },
+          { "name": "availableLiquidity", "type": "u64" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "TradeExecuted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "fillPrice", "type": "u64" },
+          { "name": "amount", "type": "u64" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "PostCheckPassed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "fillPrice", "type": "u64" },
+          { "name": "settlePrice", "type": "u64" },
+          { "name": "positionTypeIsYes", "type": "bool" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "TradeSettled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "fillPrice", "type": "u64" },
+          { "name": "settlePrice", "type": "u64" },
+          { "name": "amount", "type": "u64" },
+          { "name": "fee", "type": "u64" },
+          { "name": "feeBps", "type": "u16" },
+          { "name": "payoutEstimate", "type": "u64" },
+          { "name": "newTrustScore", "type": "u8" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "SettlementReverted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "previousStatus", "type": { "defined": { "name": "SettlementStatus" } } },
+          { "name": "reason", "type": { "defined": { "name": "RevertReason" } } },
+          { "name": "refunded", "type": "u64" },
+          { "name": "newTrustScore", "type": "u8" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "CreditBondOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "creditLimit", "type": "u64" },
+          { "name": "trustScore", "type": "u8" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "CreditBondClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "SettlementListed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "seller", "type": "pubkey" },
+          { "name": "askPrice", "type": "u64" },
+          { "name": "listedAt", "type": "u64" },
+          { "name": "expiresSlot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "SettlementBought",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nft", "type": "pubkey" },
+          { "name": "previousOwner", "type": "pubkey" },
+          { "name": "newOwner", "type": "pubkey" },
+          { "name": "pricePaid", "type": "u64" },
+          { "name": "slot", "type": "u64" }
+        ]
+      }
     }
   ]
 }
