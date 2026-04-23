@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
-use pyth_sdk_solana::state::SolanaPriceAccount;
-use std::mem::size_of;
+
+const PYTH_PRICE_ACCOUNT_SIZE: u32 = 3312;
 
 pub fn handler(ctx: Context<CreateMockFeed>, price: i64, conf: u64, expo: i32) -> Result<()> {
-    let actual_size = size_of::<SolanaPriceAccount>();
+    let actual_size = PYTH_PRICE_ACCOUNT_SIZE;
     msg!("SolanaPriceAccount size: {}", actual_size);
 
     let info = ctx.accounts.feed.to_account_info();
@@ -12,7 +12,7 @@ pub fn handler(ctx: Context<CreateMockFeed>, price: i64, conf: u64, expo: i32) -
     bytes[0..4].copy_from_slice(&0xa1b2c3e4u32.to_le_bytes());  // magic
     bytes[4..8].copy_from_slice(&2u32.to_le_bytes());           // ver = 2
     bytes[8..12].copy_from_slice(&3i32.to_le_bytes());          // atype
-    bytes[12..16].copy_from_slice(&(actual_size as u32).to_le_bytes()); // size = real
+    bytes[12..16].copy_from_slice(&actual_size.to_le_bytes()); // size = real
     bytes[20..24].copy_from_slice(&expo.to_le_bytes());         // expo
 
     let ts = Clock::get()?.unix_timestamp;

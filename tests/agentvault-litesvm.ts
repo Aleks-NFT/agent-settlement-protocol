@@ -526,6 +526,14 @@ describe("agentvault [litesvm]", () => {
         .signers([buyer]).rpc();
       assert.fail("expected NotListed");
     } catch (err: any) {
+      console.log("[NotListed] err dump:", JSON.stringify({
+        name: err?.constructor?.name,
+        message: err?.message,
+        errorCode: err?.error?.errorCode,
+        errorMessage: err?.error?.errorMessage,
+        logs: err?.logs ?? (typeof err?.getLogs === "function" ? err.getLogs() : undefined),
+        transactionLogs: err?.transactionLogs,
+      }, null, 2));
       assert.ok(err.message?.includes("NotListed") || err.error?.errorCode?.code === "NotListed",
         `Expected NotListed, got: ${err.message}`);
     }
@@ -545,10 +553,22 @@ describe("agentvault [litesvm]", () => {
     const slot = Number(provider.client.getClock().slot);
     await program.methods.listForSale(new BN(500_000), new BN(slot + 1000))
       .accounts({ seller: seller.publicKey, settlementNft: nftPda }).signers([seller]).rpc();
-    await program.methods.buySettlement()
-      .accounts({ buyer: buyer.publicKey, settlementNft: nftPda,
-        sellerUsdc, buyerUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID })
-      .signers([buyer]).rpc();
+    try {
+      await program.methods.buySettlement()
+        .accounts({ buyer: buyer.publicKey, settlementNft: nftPda,
+          sellerUsdc, buyerUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID })
+        .signers([buyer]).rpc();
+    } catch (err: any) {
+      console.log("[happy path] err dump:", JSON.stringify({
+        name: err?.constructor?.name,
+        message: err?.message,
+        errorCode: err?.error?.errorCode,
+        errorMessage: err?.error?.errorMessage,
+        logs: err?.logs ?? (typeof err?.getLogs === "function" ? err.getLogs() : undefined),
+        transactionLogs: err?.transactionLogs,
+      }, null, 2));
+      throw err;
+    }
     const nft = await program.account.settlementNft.fetch(nftPda);
     assert.equal(nft.currentOwner.toBase58(), buyer.publicKey.toBase58(), "current_owner not updated");
     assert.ok(nft.listingStatus.transferred !== undefined, "expected Transferred");
