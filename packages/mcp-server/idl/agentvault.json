@@ -443,43 +443,43 @@
   "events": [
     {
       "name": "SettlementCreated",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 1]
+      "discriminator": [185, 172, 129, 188, 29, 173, 246, 224]
     },
     {
       "name": "PreCheckPassed",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 2]
+      "discriminator": [229, 161, 228, 132, 185, 55, 35, 180]
     },
     {
       "name": "TradeExecuted",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 3]
+      "discriminator": [41, 110, 64, 129, 60, 79, 179, 80]
     },
     {
       "name": "PostCheckPassed",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 4]
+      "discriminator": [218, 98, 244, 216, 10, 127, 138, 104]
     },
     {
       "name": "TradeSettled",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 5]
+      "discriminator": [22, 119, 166, 225, 175, 53, 93, 216]
     },
     {
       "name": "SettlementReverted",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 6]
+      "discriminator": [215, 33, 75, 229, 2, 189, 176, 15]
     },
     {
       "name": "CreditBondOpened",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 7]
+      "discriminator": [0, 155, 10, 177, 109, 11, 3, 87]
     },
     {
       "name": "CreditBondClosed",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 8]
+      "discriminator": [2, 87, 67, 98, 138, 19, 151, 59]
     },
     {
       "name": "SettlementListed",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 9]
+      "discriminator": [138, 173, 117, 188, 149, 156, 168, 252]
     },
     {
       "name": "SettlementBought",
-      "discriminator": [0, 0, 0, 0, 0, 0, 0, 10]
+      "discriminator": [120, 251, 163, 31, 237, 186, 185, 247]
     }
   ],
   "errors": [
