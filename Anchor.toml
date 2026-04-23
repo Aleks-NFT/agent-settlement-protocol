@@ -11,9 +11,6 @@ agentvault = "24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ"
 [programs.localnet]
 agentvault = "3MEhXTGUxSNj59rgafTXoBXdsnj7CDQPjk5J29ReHXKx"
 
-[registry]
-url = "https://api.apr.dev"
-
 [provider]
 cluster = "devnet"
 wallet = "~/.config/solana/id.json"
