@@ -310,6 +310,10 @@ describe("agentvault [litesvm]", () => {
       .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
 
+    await program.methods.postCheck()
+      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, pythPriceFeed: feed.publicKey })
+      .signers([agent]).rpc();
+
     await program.methods.settle()
       .accounts({
         agent: agent.publicKey,
@@ -401,7 +405,11 @@ describe("agentvault [litesvm]", () => {
       .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
 
-    // Перематываем время на 2 часа вперёд — feed становится stale
+    await program.methods.postCheck()
+      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, pythPriceFeed: staleFeed.publicKey })
+      .signers([agent]).rpc();
+
+    // Перематываем время на 2 часа вперёд — feed становится stale для settle
     provider.client.warpToSlot(BigInt(7200 * 2 + 1000));
 
     try {
@@ -422,6 +430,90 @@ describe("agentvault [litesvm]", () => {
       assert.ok(
         err.message?.includes("PriceStale") || err.error?.errorCode?.code === "PriceStale",
         `Expected PriceStale, got: ${err.message}`
+      );
+    }
+  });
+
+  // ── Integration: post_check ───────────────────────────────────────────────
+
+  it("lock → pre_check → execute → post_check: status=PostChecked", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+
+    const { nftPda, vaultPda, vaultUsdc } = await setupLock(
+      agent, repPda, usdcMint, agentUsdc, new BN(1_000_000)
+    );
+
+    const feed = Keypair.generate();
+    airdrop(feed.publicKey);
+    await program.methods.createMockFeed(new BN(1_000_000), new BN(100), -6)
+      .accounts({ authority: agent.publicKey, feed: feed.publicKey, systemProgram: SystemProgram.programId })
+      .signers([agent, feed]).rpc();
+
+    await program.methods.preCheck(new BN(1_000_000), 500, new BN(5_000_000_000))
+      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, pythPriceFeed: feed.publicKey })
+      .signers([agent]).rpc();
+
+    await program.methods.executeTrade(new BN(1_000_000))
+      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .signers([agent]).rpc();
+
+    await program.methods.postCheck()
+      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, pythPriceFeed: feed.publicKey })
+      .signers([agent]).rpc();
+
+    const nft = await program.account.settlementNft.fetch(nftPda);
+    assert.deepEqual(nft.status, { postChecked: {} }, "status should be PostChecked");
+  });
+
+  it("settle without post_check → InvalidStatus", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    const feeCollector = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+
+    const { nftPda, vaultPda, vaultUsdc } = await setupLock(
+      agent, repPda, usdcMint, agentUsdc, new BN(1_000_000)
+    );
+
+    const feed = Keypair.generate();
+    airdrop(feed.publicKey);
+    await program.methods.createMockFeed(new BN(1_000_000), new BN(100), -6)
+      .accounts({ authority: agent.publicKey, feed: feed.publicKey, systemProgram: SystemProgram.programId })
+      .signers([agent, feed]).rpc();
+
+    await program.methods.preCheck(new BN(1_000_000), 500, new BN(5_000_000_000))
+      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, pythPriceFeed: feed.publicKey })
+      .signers([agent]).rpc();
+
+    await program.methods.executeTrade(new BN(1_000_000))
+      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .signers([agent]).rpc();
+
+    try {
+      await program.methods.settle()
+        .accounts({
+          agent: agent.publicKey,
+          settlementNft: nftPda,
+          vault: vaultPda,
+          agentUsdc,
+          feeCollector,
+          pythPriceFeed: feed.publicKey,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .signers([agent]).rpc();
+      assert.fail("должно упасть с InvalidStatus");
+    } catch (err: any) {
+      assert.ok(
+        err.message?.includes("InvalidStatus") || err.error?.errorCode?.code === "InvalidStatus",
+        `Expected InvalidStatus, got: ${err.message}`
       );
     }
   });

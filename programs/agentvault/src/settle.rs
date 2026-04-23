@@ -20,7 +20,7 @@ pub struct Settle<'info> {
     #[account(
         mut,
         constraint = settlement_nft.agent == agent.key() @ AspError::UnauthorizedAgent,
-        constraint = settlement_nft.status == SettlementStatus::Executed @ AspError::InvalidStatus,
+        constraint = settlement_nft.status == SettlementStatus::PostChecked @ AspError::InvalidStatus,
     )]
     pub settlement_nft: Account<'info, SettlementNft>,
 

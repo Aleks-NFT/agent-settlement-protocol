@@ -8,6 +8,7 @@ pub mod mock_feed;
 pub mod execute_ix;
 pub mod revert;
 pub mod settle;
+pub mod post_check;
 pub mod init_reputation;
 pub mod list_for_sale;
 pub mod buy_settlement;
@@ -18,6 +19,7 @@ use mock_feed::*;
 use execute_ix::*;
 use revert::*;
 use settle::*;
+use post_check::*;
 use state::*;
 use init_reputation::*;
 use list_for_sale::*;
@@ -53,6 +55,10 @@ pub mod agentvault {
 
     pub fn revert(ctx: Context<Revert>, reason: RevertReason) -> Result<()> {
         revert::handler(ctx, reason)
+    }
+
+    pub fn post_check(ctx: Context<PostCheck>) -> Result<()> {
+        post_check::handler(ctx)
     }
 
     pub fn settle(ctx: Context<Settle>) -> Result<()> {

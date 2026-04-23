@@ -137,7 +137,7 @@ async function main() {
   ok("Status", JSON.stringify((await program.account.settlementNft.fetch(nftPda)).status));
   link("TX",   EXPLORER_TX(preCheckTx));
 
-  log("7️⃣  Execute — fill at $1.05");
+  log("6️⃣  Execute — fill at $1.05");
   const fillPrice = new BN(1_050_000);
   const executeTx = await program.methods.executeTrade(fillPrice)
     .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
@@ -146,6 +146,18 @@ async function main() {
   ok("Status",      JSON.stringify((await program.account.settlementNft.fetch(nftPda)).status));
   ok("Trust Score", `${rep1.trustScore}/100`);
   link("TX",        EXPLORER_TX(executeTx));
+
+  log("7️⃣  PostCheck — verify outcome on-chain");
+  const postCheckTx = await program.methods.postCheck()
+    .accounts({
+      agent: agent.publicKey,
+      settlementNft: nftPda,
+      vault: vaultPda,
+      pythPriceFeed: feed.publicKey,
+    })
+    .rpc();
+  ok("Status", JSON.stringify((await program.account.settlementNft.fetch(nftPda)).status));
+  link("TX",   EXPLORER_TX(postCheckTx));
 
   log("8️⃣  Settle — Pyth confirms, fee deducted, reputation +2");
   const balBefore = await getAccount(connection, agentUsdc);
@@ -168,7 +180,7 @@ async function main() {
   console.log("═".repeat(64));
   console.log(`   Agent:       ${agent.publicKey.toBase58()}`);
   console.log(`   Trust Score: ${rep2.trustScore}/100`);
-  console.log(`   Flow:        ${SHOW_FACTORING ? "lock → factoring → precheck → execute → settle" : "lock → precheck → execute → settle"}`);
+  console.log(`   Flow:        ${SHOW_FACTORING ? "lock → factoring → precheck → execute → post_check → settle" : "lock → precheck → execute → post_check → settle"}`);
   console.log(`   Explorer:    https://explorer.solana.com/address/${PROGRAM_ID.toBase58()}?cluster=devnet`);
   console.log("═".repeat(64) + "\n");
 }
