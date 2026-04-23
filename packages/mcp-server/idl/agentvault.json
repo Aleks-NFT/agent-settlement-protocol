@@ -1,0 +1,652 @@
+{
+  "address": "24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ",
+  "metadata": {
+    "name": "agentvault",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Agent Settlement Protocol — LOCK→PRE-CHECK→EXECUTE→POST-CHECK→SETTLE"
+  },
+  "instructions": [
+    {
+      "name": "initReputation",
+      "discriminator": [236, 239, 233, 112, 220, 149, 26, 175],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [114, 101, 112, 117, 116, 97, 116, 105, 111, 110] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "systemProgram", "address": "11111111111111111111111111111111" }
+      ],
+      "args": []
+    },
+    {
+      "name": "lock",
+      "discriminator": [21, 19, 208, 43, 237, 62, 255, 87],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "settlementNft",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [115, 101, 116, 116, 108, 101, 109, 101, 110, 116, 95, 110, 102, 116] },
+              { "kind": "account", "path": "agent" },
+              { "kind": "arg", "path": "marketId" }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116] },
+              { "kind": "account", "path": "settlementNft" }
+            ]
+          }
+        },
+        {
+          "name": "reputation",
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [114, 101, 112, 117, 116, 97, 116, 105, 111, 110] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "agentUsdc", "writable": true },
+        {
+          "name": "vaultUsdc",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116, 95, 117, 115, 100, 99] },
+              { "kind": "account", "path": "vault" }
+            ]
+          }
+        },
+        { "name": "usdcMint" },
+        {
+          "name": "creditBond",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 114, 101, 100, 105, 116, 95, 98, 111, 110, 100] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "tokenProgram", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
+        { "name": "systemProgram", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "marketId", "type": "pubkey" },
+        { "name": "amount", "type": "u64" },
+        { "name": "positionType", "type": { "defined": { "name": "PositionType" } } },
+        { "name": "timeoutSlots", "type": "u64" }
+      ]
+    },
+    {
+      "name": "preCheck",
+      "discriminator": [199, 68, 6, 157, 74, 205, 121, 177],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "settlementNft",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [115, 101, 116, 116, 108, 101, 109, 101, 110, 116, 95, 110, 102, 116] },
+              { "kind": "account", "path": "agent" },
+              { "kind": "account", "path": "settlementNft.marketId" }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116] },
+              { "kind": "account", "path": "settlementNft" }
+            ]
+          }
+        },
+        { "name": "pythPriceFeed" }
+      ],
+      "args": [
+        { "name": "expectedPrice", "type": "u64" },
+        { "name": "toleranceBps", "type": "u16" },
+        { "name": "availableLiquidity", "type": "u64" }
+      ]
+    },
+    {
+      "name": "executeTrade",
+      "discriminator": [77, 16, 192, 135, 13, 0, 106, 97],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "settlementNft",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [115, 101, 116, 116, 108, 101, 109, 101, 110, 116, 95, 110, 102, 116] },
+              { "kind": "account", "path": "agent" },
+              { "kind": "account", "path": "settlementNft.marketId" }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116] },
+              { "kind": "account", "path": "settlementNft" }
+            ]
+          }
+        },
+        {
+          "name": "vaultUsdc",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116, 95, 117, 115, 100, 99] },
+              { "kind": "account", "path": "vault" }
+            ]
+          }
+        },
+        { "name": "agentUsdc", "writable": true },
+        {
+          "name": "reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [114, 101, 112, 117, 116, 97, 116, 105, 111, 110] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "tokenProgram", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }
+      ],
+      "args": [
+        { "name": "fillPrice", "type": "u64" }
+      ]
+    },
+    {
+      "name": "createMockFeed",
+      "discriminator": [7, 197, 142, 249, 247, 103, 62, 249],
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "feed", "writable": true },
+        { "name": "systemProgram", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "price", "type": "i64" },
+        { "name": "conf", "type": "u64" },
+        { "name": "expo", "type": "i32" }
+      ]
+    },
+    {
+      "name": "revert",
+      "discriminator": [34, 63, 104, 86, 5, 121, 130, 66],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "settlementNft",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [115, 101, 116, 116, 108, 101, 109, 101, 110, 116, 95, 110, 102, 116] },
+              { "kind": "account", "path": "agent" },
+              { "kind": "account", "path": "settlementNft.marketId" }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116] },
+              { "kind": "account", "path": "settlementNft" }
+            ]
+          }
+        },
+        {
+          "name": "vaultUsdc",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116, 95, 117, 115, 100, 99] },
+              { "kind": "account", "path": "vault" }
+            ]
+          }
+        },
+        { "name": "agentUsdc", "writable": true },
+        {
+          "name": "reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [114, 101, 112, 117, 116, 97, 116, 105, 111, 110] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        {
+          "name": "creditBond",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 114, 101, 100, 105, 116, 95, 98, 111, 110, 100] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "tokenProgram", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }
+      ],
+      "args": [
+        { "name": "reason", "type": { "defined": { "name": "RevertReason" } } }
+      ]
+    },
+    {
+      "name": "postCheck",
+      "discriminator": [1, 209, 151, 19, 54, 31, 216, 229],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "settlementNft",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [115, 101, 116, 116, 108, 101, 109, 101, 110, 116, 95, 110, 102, 116] },
+              { "kind": "account", "path": "agent" },
+              { "kind": "account", "path": "settlementNft.marketId" }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116] },
+              { "kind": "account", "path": "settlementNft" }
+            ]
+          }
+        },
+        { "name": "pythPriceFeed" }
+      ],
+      "args": []
+    },
+    {
+      "name": "settle",
+      "discriminator": [175, 42, 185, 87, 144, 131, 102, 212],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        { "name": "settlementNft", "writable": true },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [118, 97, 117, 108, 116] },
+              { "kind": "account", "path": "settlementNft" }
+            ]
+          }
+        },
+        { "name": "agentUsdc", "writable": true },
+        { "name": "feeCollector", "writable": true },
+        {
+          "name": "reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [114, 101, 112, 117, 116, 97, 116, 105, 111, 110] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "pythPriceFeed" },
+        {
+          "name": "creditBond",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 114, 101, 100, 105, 116, 95, 98, 111, 110, 100] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "tokenProgram", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }
+      ],
+      "args": []
+    },
+    {
+      "name": "openCreditBond",
+      "discriminator": [203, 170, 66, 140, 241, 22, 56, 34],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "reputation",
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [114, 101, 112, 117, 116, 97, 116, 105, 111, 110] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        {
+          "name": "creditBond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 114, 101, 100, 105, 116, 95, 98, 111, 110, 100] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        },
+        { "name": "systemProgram", "address": "11111111111111111111111111111111" }
+      ],
+      "args": []
+    },
+    {
+      "name": "closeCreditBond",
+      "discriminator": [44, 3, 70, 27, 113, 38, 163, 221],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        {
+          "name": "creditBond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 114, 101, 100, 105, 116, 95, 98, 111, 110, 100] },
+              { "kind": "account", "path": "agent" }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "listForSale",
+      "discriminator": [188, 214, 1, 112, 93, 215, 124, 207],
+      "accounts": [
+        { "name": "seller", "writable": true, "signer": true },
+        {
+          "name": "settlementNft",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [115, 101, 116, 116, 108, 101, 109, 101, 110, 116, 95, 110, 102, 116] },
+              { "kind": "account", "path": "settlementNft.agent" },
+              { "kind": "account", "path": "settlementNft.marketId" }
+            ]
+          }
+        }
+      ],
+      "args": [
+        { "name": "askPrice", "type": "u64" },
+        { "name": "listingExpiresSlot", "type": "u64" }
+      ]
+    },
+    {
+      "name": "buySettlement",
+      "discriminator": [63, 190, 20, 65, 226, 8, 97, 197],
+      "accounts": [
+        { "name": "buyer", "writable": true, "signer": true },
+        {
+          "name": "settlementNft",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [115, 101, 116, 116, 108, 101, 109, 101, 110, 116, 95, 110, 102, 116] },
+              { "kind": "account", "path": "settlementNft.agent" },
+              { "kind": "account", "path": "settlementNft.marketId" }
+            ]
+          }
+        },
+        { "name": "sellerUsdc", "writable": true },
+        { "name": "buyerUsdc", "writable": true },
+        { "name": "usdcMint" },
+        { "name": "tokenProgram", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ReputationAccount",
+      "discriminator": [19, 185, 177, 157, 34, 87, 67, 233]
+    },
+    {
+      "name": "SettlementNft",
+      "discriminator": [125, 47, 98, 234, 163, 247, 245, 26]
+    },
+    {
+      "name": "Vault",
+      "discriminator": [211, 8, 232, 43, 2, 152, 117, 119]
+    },
+    {
+      "name": "CreditBond",
+      "discriminator": [250, 76, 26, 195, 41, 123, 49, 224]
+    }
+  ],
+  "events": [
+    {
+      "name": "SettlementCreated",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 1]
+    },
+    {
+      "name": "PreCheckPassed",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 2]
+    },
+    {
+      "name": "TradeExecuted",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 3]
+    },
+    {
+      "name": "PostCheckPassed",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 4]
+    },
+    {
+      "name": "TradeSettled",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 5]
+    },
+    {
+      "name": "SettlementReverted",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 6]
+    },
+    {
+      "name": "CreditBondOpened",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 7]
+    },
+    {
+      "name": "CreditBondClosed",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 8]
+    },
+    {
+      "name": "SettlementListed",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 9]
+    },
+    {
+      "name": "SettlementBought",
+      "discriminator": [0, 0, 0, 0, 0, 0, 0, 10]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "MarketNotActive", "msg": "Market is not active" },
+    { "code": 6001, "name": "PriceOutOfRange", "msg": "Price out of tolerance range" },
+    { "code": 6002, "name": "InsufficientLiquidity", "msg": "Insufficient liquidity" },
+    { "code": 6003, "name": "InvalidStatus", "msg": "Invalid settlement status for this instruction" },
+    { "code": 6004, "name": "AlreadySettled", "msg": "Settlement already finalized" },
+    { "code": 6005, "name": "EscrowDrained", "msg": "Escrow has been drained unexpectedly" },
+    { "code": 6006, "name": "PostCheckFailed", "msg": "Post-check failed: outcome tokens not received" },
+    { "code": 6007, "name": "VaultClosed", "msg": "Vault is closed" },
+    { "code": 6008, "name": "UnauthorizedAgent", "msg": "Unauthorized agent" },
+    { "code": 6009, "name": "TimedOut", "msg": "Settlement timed out" },
+    { "code": 6010, "name": "ArithmeticOverflow", "msg": "Arithmetic overflow" },
+    { "code": 6011, "name": "PriceStale", "msg": "Pyth price feed is stale" },
+    { "code": 6012, "name": "PriceConfidenceTooHigh", "msg": "Pyth confidence interval too wide" },
+    { "code": 6013, "name": "InvalidFillPrice", "msg": "Fill price must be greater than zero" },
+    { "code": 6014, "name": "NotTransferable", "msg": "This Settlement NFT is not transferable by policy" },
+    { "code": 6015, "name": "AlreadyListed", "msg": "Settlement NFT is already listed for sale" },
+    { "code": 6016, "name": "NotListed", "msg": "Settlement NFT is not currently listed for sale" },
+    { "code": 6017, "name": "CannotBuyOwnListing", "msg": "Cannot buy your own listing" },
+    { "code": 6018, "name": "CannotListTerminalPosition", "msg": "Cannot list a position that has already settled or reverted" },
+    { "code": 6019, "name": "CannotBuyTerminalPosition", "msg": "Cannot buy a position that has already settled or reverted" },
+    { "code": 6020, "name": "ListingExpired", "msg": "Listing has expired" },
+    { "code": 6021, "name": "InvalidAskPrice", "msg": "Ask price must be greater than zero" },
+    { "code": 6022, "name": "InvalidListingExpiry", "msg": "Listing expiry must be a future slot" },
+    { "code": 6023, "name": "InvalidSellerAccount", "msg": "Seller USDC token account owner does not match NFT current_owner" },
+    { "code": 6024, "name": "AlreadyTransferred", "msg": "Already transferred — multi-hop secondary market not supported in v0.4.0" },
+    { "code": 6025, "name": "TrustScoreTooLow", "msg": "Trust score too low to open a credit bond (minimum: 81)" },
+    { "code": 6026, "name": "CreditBondInactive", "msg": "Credit bond is not active" },
+    { "code": 6027, "name": "CreditLimitExceeded", "msg": "Amount exceeds available credit limit" },
+    { "code": 6028, "name": "CreditBondHasOpenPositions", "msg": "Credit bond still has outstanding positions" }
+  ],
+  "types": [
+    {
+      "name": "ReputationAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "trustScore", "type": "u8" },
+          { "name": "successfulSettlements", "type": "u32" },
+          { "name": "revertedSettlements", "type": "u32" },
+          { "name": "totalVolume", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "SettlementNft",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "currentOwner", "type": "pubkey" },
+          { "name": "marketId", "type": "pubkey" },
+          { "name": "positionType", "type": { "defined": { "name": "PositionType" } } },
+          { "name": "amount", "type": "u64" },
+          { "name": "actualFillPrice", "type": "u64" },
+          { "name": "trustScoreAtEntry", "type": "u8" },
+          { "name": "feeBps", "type": "u16" },
+          { "name": "collateralRatio", "type": "u16" },
+          { "name": "status", "type": { "defined": { "name": "SettlementStatus" } } },
+          { "name": "createdSlot", "type": "u64" },
+          { "name": "executedSlot", "type": "u64" },
+          { "name": "settledSlot", "type": "u64" },
+          { "name": "timeoutSlot", "type": "u64" },
+          { "name": "fallbackAction", "type": { "defined": { "name": "FallbackAction" } } },
+          { "name": "transferable", "type": "bool" },
+          { "name": "bump", "type": "u8" },
+          { "name": "listingStatus", "type": { "defined": { "name": "ListingStatus" } } },
+          { "name": "askPrice", "type": "u64" },
+          { "name": "listedAtSlot", "type": "u64" },
+          { "name": "listingExpiresSlot", "type": "u64" },
+          { "name": "reserved", "type": { "array": ["u8", 32] } }
+        ]
+      }
+    },
+    {
+      "name": "Vault",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "settlementNft", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "amountLocked", "type": "u64" },
+          { "name": "collateral", "type": "u64" },
+          { "name": "isClosed", "type": "bool" },
+          { "name": "bump", "type": "u8" },
+          { "name": "vaultUsdcBump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "CreditBond",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "creditLimit", "type": "u64" },
+          { "name": "creditUsed", "type": "u64" },
+          { "name": "isActive", "type": "bool" },
+          { "name": "openedAtSlot", "type": "u64" },
+          { "name": "trustScoreAtOpen", "type": "u8" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "PositionType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Yes" },
+          { "name": "No" }
+        ]
+      }
+    },
+    {
+      "name": "SettlementStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Locked" },
+          { "name": "PreChecked" },
+          { "name": "Executed" },
+          { "name": "PostChecked" },
+          { "name": "Settled" },
+          { "name": "Reverted" },
+          { "name": "TimedOut" }
+        ]
+      }
+    },
+    {
+      "name": "FallbackAction",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "RevertFull" },
+          { "name": "PartialSettle" },
+          { "name": "HoldForDispute" }
+        ]
+      }
+    },
+    {
+      "name": "ListingStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Active" },
+          { "name": "Listed" },
+          { "name": "Transferred" }
+        ]
+      }
+    },
+    {
+      "name": "RevertReason",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "PreCheckFailed" },
+          { "name": "ExecutionFailed" },
+          { "name": "PostCheckFailed" },
+          { "name": "TimedOut" },
+          { "name": "AgentInitiated" }
+        ]
+      }
+    }
+  ]
+}
