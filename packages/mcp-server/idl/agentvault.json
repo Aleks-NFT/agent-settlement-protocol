@@ -185,7 +185,7 @@
       "discriminator": [7, 197, 142, 249, 247, 103, 62, 249],
       "accounts": [
         { "name": "authority", "writable": true, "signer": true },
-        { "name": "feed", "writable": true },
+        { "name": "feed", "writable": true, "signer": true },
         { "name": "systemProgram", "address": "11111111111111111111111111111111" }
       ],
       "args": [
