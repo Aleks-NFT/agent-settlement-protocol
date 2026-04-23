@@ -27,3 +27,4 @@ target/.*.json
 .anchor/.*.json
 !Anchor.toml
 target/
+keys/
