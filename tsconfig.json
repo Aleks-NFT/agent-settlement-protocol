@@ -7,11 +7,13 @@
     "resolveJsonModule": true,
     "strict": false,
     "skipLibCheck": true,
+    "types": ["node"],
     "rootDir": ".",
     "outDir": "dist"
   },
   "include": [
     "tests/**/*.ts",
+    "demo/**/*.ts",
     "target/types/*.ts"
   ]
 }

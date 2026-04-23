@@ -1,49 +1,50 @@
 /**
  * ASP Full Lifecycle Demo
- * Runs on devnet: lock → preCheck → executeTrade → settle
- * Optional: after lock, demonstrates factoring (early exit) flow
- * Usage: npx ts-node --esm demo/full-lifecycle.ts
- *        FACTORING=1 npx ts-node --esm demo/full-lifecycle.ts
+ * Runs on devnet: lock → preCheck → executeTrade → postCheck → settle
+ * Usage: npx ts-node demo/full-lifecycle.ts
+ *        FACTORING=1 npx ts-node demo/full-lifecycle.ts
  */
 
 import * as anchor from "@coral-xyz/anchor";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const IDL = require("../target/idl/agentvault.json");
-
-import {
-  Keypair, PublicKey, SystemProgram, Connection, clusterApiUrl,
-} from "@solana/web3.js";
-import {
-  TOKEN_PROGRAM_ID, createMint, getOrCreateAssociatedTokenAccount, mintTo, getAccount,
-} from "@solana/spl-token";
+import { Keypair, PublicKey, SystemProgram, Connection, clusterApiUrl } from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID, createMint, getOrCreateAssociatedTokenAccount, mintTo, getAccount } from "@solana/spl-token";
 import BN from "bn.js";
 import fs from "fs";
+import path from "path";
 
-const PROGRAM_ID  = new PublicKey("24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ");
-const connection  = new Connection(clusterApiUrl("devnet"), "confirmed");
-const EXPLORER_TX = (sig: string) => `https://explorer.solana.com/tx/${sig}?cluster=devnet`;
+// Load IDL from committed path (no anchor build needed)
+const IDL = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "../packages/mcp-server/idl/agentvault.json"), "utf-8")
+);
+
+const PROGRAM_ID   = new PublicKey("5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW");
+const connection   = new Connection(clusterApiUrl("devnet"), "confirmed");
+const EXPLORER_TX  = (sig: string) => `https://explorer.solana.com/tx/${sig}?cluster=devnet`;
 const SHOW_FACTORING = process.env.FACTORING === "1";
 
-const log  = (msg: string)        => console.log(`\n${"─".repeat(64)}\n${msg}`);
-const ok   = (label: string, val) => console.log(`  ✅ ${label}: ${val}`);
-const info = (label: string, val) => console.log(`  ℹ️  ${label}: ${val}`);
-const link = (label: string, val) => console.log(`  🔗 ${label}: ${val}`);
+const log  = (msg: string)       => console.log(`\n${"─".repeat(64)}\n${msg}`);
+const ok   = (label: string, val: unknown) => console.log(`  ✅ ${label}: ${val}`);
+const info = (label: string, val: unknown) => console.log(`  ℹ️  ${label}: ${val}`);
+const link = (label: string, val: unknown) => console.log(`  🔗 ${label}: ${val}`);
 
 function pda(seeds: Buffer[], programId: PublicKey): PublicKey {
   return PublicKey.findProgramAddressSync(seeds, programId)[0];
 }
-function loadWallet(path: string): Keypair {
-  return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(path, "utf-8"))));
+function loadWallet(p: string): Keypair {
+  return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(p, "utf-8"))));
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const accounts = (program: anchor.Program) => (program.account as any);
+
 async function ensureReputation(program: anchor.Program, agent: Keypair): Promise<PublicKey> {
   const repPda = pda([Buffer.from("reputation"), agent.publicKey.toBuffer()], PROGRAM_ID);
   try {
-    await program.account.reputationAccount.fetch(repPda);
+    await accounts(program).reputationAccount.fetch(repPda);
     info("reputation", "already exists");
   } catch {
     const sig = await program.methods.initReputation()
-      .accounts({ agent: agent.publicKey, reputationAccount: repPda, systemProgram: SystemProgram.programId })
+      .accounts({ agent: agent.publicKey, reputation: repPda, systemProgram: SystemProgram.programId })
       .signers([agent]).rpc();
     ok("init_reputation", sig);
   }
@@ -54,7 +55,7 @@ async function main() {
   console.log("\n🚀 AgentVault — Full Lifecycle Demo");
   console.log(`   Program: ${PROGRAM_ID.toBase58()}`);
   console.log(`   Network: devnet`);
-  console.log(`   Mode:    ${SHOW_FACTORING ? "lifecycle + factoring" : "lifecycle only (add FACTORING=1 to include early exit)"}\n`);
+  console.log(`   Mode:    ${SHOW_FACTORING ? "lifecycle + factoring" : "lifecycle only"}\n`);
 
   const agent    = loadWallet(process.env.WALLET_KEYPAIR ?? `${process.env.HOME}/.config/solana/id.json`);
   const wallet   = new anchor.Wallet(agent);
@@ -73,7 +74,7 @@ async function main() {
 
   log("2️⃣  Reputation");
   const repPda = await ensureReputation(program, agent);
-  const rep0   = await program.account.reputationAccount.fetch(repPda);
+  const rep0   = await accounts(program).reputationAccount.fetch(repPda);
   ok("Trust Score", `${rep0.trustScore}/100`);
 
   log("3️⃣  Lock — escrow 1,000 USDC");
@@ -88,7 +89,7 @@ async function main() {
       reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
       tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId })
     .rpc();
-  ok("Status",  JSON.stringify((await program.account.settlementNft.fetch(nftPda)).status));
+  ok("Status",  JSON.stringify((await accounts(program).settlementNft.fetch(nftPda)).status));
   ok("Amount",  `${amount.toNumber() / 1e6} USDC`);
   link("TX",    EXPLORER_TX(lockTx));
 
@@ -114,7 +115,7 @@ async function main() {
       .accounts({ buyer: botB.publicKey, settlementNft: nftPda,
         sellerUsdc: agentUsdc, buyerUsdc: botBUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([botB]).rpc();
-    const nftF = await program.account.settlementNft.fetch(nftPda);
+    const nftF = await accounts(program).settlementNft.fetch(nftPda);
     ok("New owner",      nftF.currentOwner.toBase58());
     ok("listing_status", JSON.stringify(nftF.listingStatus));
     link("TX",           EXPLORER_TX(buySig));
@@ -134,40 +135,35 @@ async function main() {
   log("6️⃣  PreCheck — validate price on-chain");
   const preCheckTx = await program.methods.preCheck(new BN(1_000_000), 500, new BN(5_000_000_000))
     .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, pythPriceFeed: feed.publicKey }).rpc();
-  ok("Status", JSON.stringify((await program.account.settlementNft.fetch(nftPda)).status));
+  ok("Status", JSON.stringify((await accounts(program).settlementNft.fetch(nftPda)).status));
   link("TX",   EXPLORER_TX(preCheckTx));
 
-  log("6️⃣  Execute — fill at $1.05");
+  log("7️⃣  Execute — fill at $1.05");
   const fillPrice = new BN(1_050_000);
   const executeTx = await program.methods.executeTrade(fillPrice)
     .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
       vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID }).rpc();
-  const rep1 = await program.account.reputationAccount.fetch(repPda);
-  ok("Status",      JSON.stringify((await program.account.settlementNft.fetch(nftPda)).status));
+  const rep1 = await accounts(program).reputationAccount.fetch(repPda);
+  ok("Status",      JSON.stringify((await accounts(program).settlementNft.fetch(nftPda)).status));
   ok("Trust Score", `${rep1.trustScore}/100`);
   link("TX",        EXPLORER_TX(executeTx));
 
-  log("7️⃣  PostCheck — verify outcome on-chain");
+  log("8️⃣  PostCheck — verify outcome on-chain");
   const postCheckTx = await program.methods.postCheck()
-    .accounts({
-      agent: agent.publicKey,
-      settlementNft: nftPda,
-      vault: vaultPda,
-      pythPriceFeed: feed.publicKey,
-    })
+    .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, pythPriceFeed: feed.publicKey })
     .rpc();
-  ok("Status", JSON.stringify((await program.account.settlementNft.fetch(nftPda)).status));
+  ok("Status", JSON.stringify((await accounts(program).settlementNft.fetch(nftPda)).status));
   link("TX",   EXPLORER_TX(postCheckTx));
 
-  log("8️⃣  Settle — Pyth confirms, fee deducted, reputation +2");
+  log("9️⃣  Settle — Pyth confirms, fee deducted, reputation +2");
   const balBefore = await getAccount(connection, agentUsdc);
   const settleTx  = await program.methods.settle()
     .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
-      agentUsdc, feeCollector, reputationAccount: repPda,
+      agentUsdc, feeCollector, reputation: repPda,
       pythPriceFeed: feed.publicKey, tokenProgram: TOKEN_PROGRAM_ID }).rpc();
-  const rep2   = await program.account.reputationAccount.fetch(repPda);
-  const nft3   = await program.account.settlementNft.fetch(nftPda);
-  const fee    = Number(balBefore.amount) - Number((await getAccount(connection, agentUsdc)).amount);
+  const rep2 = await accounts(program).reputationAccount.fetch(repPda);
+  const nft3 = await accounts(program).settlementNft.fetch(nftPda);
+  const fee  = Number(balBefore.amount) - Number((await getAccount(connection, agentUsdc)).amount);
   ok("Status",             JSON.stringify(nft3.status));
   ok("Fee paid",           `${fee / 1e6} USDC`);
   ok("Trust Score",        `${rep2.trustScore}/100`);
