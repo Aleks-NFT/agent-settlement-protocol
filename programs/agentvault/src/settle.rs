@@ -39,6 +39,13 @@ pub struct Settle<'info> {
     /// CHECK: Pyth price feed — magic bytes and staleness validated manually
     pub pyth_price_feed: AccountInfo<'info>,
 
+    #[account(
+        mut,
+        seeds = [b"credit_bond", agent.key().as_ref()],
+        bump,
+    )]
+    pub credit_bond: Option<Account<'info, CreditBond>>,
+
     pub token_program: Program<'info, Token>,
 }
 
@@ -141,6 +148,14 @@ pub fn handler(ctx: Context<Settle>) -> Result<()> {
 
     nft.status       = SettlementStatus::Settled;
     nft.settled_slot = clock.slot;
+
+    // Release credit if this position was backed by a credit bond
+    if let Some(ref mut bond) = ctx.accounts.credit_bond {
+        if bond.is_active {
+            bond.credit_used = bond.credit_used
+                .saturating_sub(amount);
+        }
+    }
 
     reputation.trust_score = reputation.trust_score.saturating_add(2).min(100);
     reputation.successful_settlements = reputation.successful_settlements

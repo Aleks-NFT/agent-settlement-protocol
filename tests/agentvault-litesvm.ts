@@ -667,4 +667,200 @@ describe("agentvault [litesvm]", () => {
     assert.ok(nft.askPrice.eq(new BN(0)), "ask_price should be zeroed");
   });
 
+  // ── Credit Bond ──────────────────────────────────────────────────────────
+
+  // Helper: set trust_score on an existing reputation account directly in LiteSVM
+  async function setTrustScore(agent: Keypair, repPda: PublicKey, trustScore: number) {
+    const repData = await program.account.reputationAccount.fetch(repPda);
+    const encoded = await program.coder.accounts.encode("reputationAccount", {
+      agent: agent.publicKey,
+      trustScore,
+      successfulSettlements: repData.successfulSettlements,
+      revertedSettlements: repData.revertedSettlements,
+      totalVolume: repData.totalVolume,
+      bump: repData.bump,
+    });
+    const existing = provider.client.getAccount(repPda);
+    provider.client.setAccount(repPda, {
+      lamports: existing!.lamports,
+      data: encoded,
+      owner: program.programId,
+      executable: false,
+    });
+  }
+
+  it("credit_bond: TrustScoreTooLow — trust=0 cannot open bond", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent); // trust_score = 0
+
+    const [creditBondPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("credit_bond"), agent.publicKey.toBuffer()], program.programId
+    );
+    try {
+      await program.methods.openCreditBond()
+        .accounts({ agent: agent.publicKey, reputation: repPda, creditBond: creditBondPda, systemProgram: SystemProgram.programId })
+        .signers([agent]).rpc();
+      assert.fail("должно упасть с TrustScoreTooLow");
+    } catch (err: any) {
+      assert.ok(
+        err.message?.includes("TrustScoreTooLow") || err.error?.errorCode?.code === "TrustScoreTooLow",
+        `Expected TrustScoreTooLow, got: ${err.message}`
+      );
+    }
+  });
+
+  it("credit_bond: open happy path — trust=85 → limit=10_000_000_000", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    await setTrustScore(agent, repPda, 85);
+
+    const [creditBondPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("credit_bond"), agent.publicKey.toBuffer()], program.programId
+    );
+    await program.methods.openCreditBond()
+      .accounts({ agent: agent.publicKey, reputation: repPda, creditBond: creditBondPda, systemProgram: SystemProgram.programId })
+      .signers([agent]).rpc();
+
+    const bond = await program.account.creditBond.fetch(creditBondPda);
+    assert.ok(bond.isActive, "bond should be active");
+    assert.ok(bond.creditLimit.eq(new BN(10_000_000_000)), "credit limit should be 10B (trust 81-90)");
+    assert.ok(bond.creditUsed.eq(new BN(0)), "credit_used should start at 0");
+  });
+
+  it("credit_bond: lock with bond — vault holds only amount, no collateral", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    await setTrustScore(agent, repPda, 85);
+
+    const [creditBondPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("credit_bond"), agent.publicKey.toBuffer()], program.programId
+    );
+    await program.methods.openCreditBond()
+      .accounts({ agent: agent.publicKey, reputation: repPda, creditBond: creditBondPda, systemProgram: SystemProgram.programId })
+      .signers([agent]).rpc();
+
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+
+    const amount = new BN(1_000_000);
+    const marketId = Keypair.generate().publicKey;
+    const [nftPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("settlement_nft"), agent.publicKey.toBuffer(), marketId.toBuffer()], program.programId
+    );
+    const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from("vault"), nftPda.toBuffer()], program.programId);
+    const [vaultUsdc] = PublicKey.findProgramAddressSync([Buffer.from("vault_usdc"), vaultPda.toBuffer()], program.programId);
+
+    await program.methods.lock(marketId, amount, { yes: {} }, new BN(1000))
+      .accounts({
+        agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
+        reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
+        tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
+        creditBond: creditBondPda,
+      })
+      .signers([agent]).rpc();
+
+    const vault = await program.account.vault.fetch(vaultPda);
+    assert.ok(vault.collateral.eq(new BN(0)), "collateral should be 0 with credit bond");
+    assert.ok(vault.amountLocked.eq(amount), "amount_locked should equal position amount");
+
+    const bond = await program.account.creditBond.fetch(creditBondPda);
+    assert.ok(bond.creditUsed.eq(amount), "credit_used should equal locked amount");
+  });
+
+  it("credit_bond: CreditLimitExceeded — amount > available credit", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey, 200);
+    const repPda = await setupReputation(agent);
+    await setTrustScore(agent, repPda, 85);
+
+    const [creditBondPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("credit_bond"), agent.publicKey.toBuffer()], program.programId
+    );
+    await program.methods.openCreditBond()
+      .accounts({ agent: agent.publicKey, reputation: repPda, creditBond: creditBondPda, systemProgram: SystemProgram.programId })
+      .signers([agent]).rpc();
+
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 100_000_000_000);
+
+    const tooMuch = new BN(11_000_000_000); // > 10B limit for trust 81-90
+    const marketId = Keypair.generate().publicKey;
+    const [nftPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("settlement_nft"), agent.publicKey.toBuffer(), marketId.toBuffer()], program.programId
+    );
+    const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from("vault"), nftPda.toBuffer()], program.programId);
+    const [vaultUsdc] = PublicKey.findProgramAddressSync([Buffer.from("vault_usdc"), vaultPda.toBuffer()], program.programId);
+
+    try {
+      await program.methods.lock(marketId, tooMuch, { yes: {} }, new BN(1000))
+        .accounts({
+          agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
+          reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
+          tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
+          creditBond: creditBondPda,
+        })
+        .signers([agent]).rpc();
+      assert.fail("должно упасть с CreditLimitExceeded");
+    } catch (err: any) {
+      assert.ok(
+        err.message?.includes("CreditLimitExceeded") || err.error?.errorCode?.code === "CreditLimitExceeded",
+        `Expected CreditLimitExceeded, got: ${err.message}`
+      );
+    }
+  });
+
+  it("credit_bond: credit released after revert — credit_used returns to 0", async () => {
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent);
+    await setTrustScore(agent, repPda, 85);
+
+    const [creditBondPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("credit_bond"), agent.publicKey.toBuffer()], program.programId
+    );
+    await program.methods.openCreditBond()
+      .accounts({ agent: agent.publicKey, reputation: repPda, creditBond: creditBondPda, systemProgram: SystemProgram.programId })
+      .signers([agent]).rpc();
+
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+
+    const amount = new BN(1_000_000);
+    const marketId = Keypair.generate().publicKey;
+    const [nftPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("settlement_nft"), agent.publicKey.toBuffer(), marketId.toBuffer()], program.programId
+    );
+    const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from("vault"), nftPda.toBuffer()], program.programId);
+    const [vaultUsdc] = PublicKey.findProgramAddressSync([Buffer.from("vault_usdc"), vaultPda.toBuffer()], program.programId);
+
+    await program.methods.lock(marketId, amount, { yes: {} }, new BN(1000))
+      .accounts({
+        agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
+        reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
+        tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
+        creditBond: creditBondPda,
+      })
+      .signers([agent]).rpc();
+
+    const bondBefore = await program.account.creditBond.fetch(creditBondPda);
+    assert.ok(bondBefore.creditUsed.eq(amount), "credit_used should equal locked amount before revert");
+
+    await program.methods.revert({ agentInitiated: {} })
+      .accounts({
+        agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
+        vaultUsdc, agentUsdc, reputation: repPda,
+        creditBond: creditBondPda, tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([agent]).rpc();
+
+    const bondAfter = await program.account.creditBond.fetch(creditBondPda);
+    assert.ok(bondAfter.creditUsed.eq(new BN(0)), "credit_used should be 0 after revert");
+  });
+
 });

@@ -9,6 +9,8 @@ pub mod execute_ix;
 pub mod revert;
 pub mod settle;
 pub mod post_check;
+pub mod open_credit_bond;
+pub mod close_credit_bond;
 pub mod init_reputation;
 pub mod list_for_sale;
 pub mod buy_settlement;
@@ -20,6 +22,8 @@ use execute_ix::*;
 use revert::*;
 use settle::*;
 use post_check::*;
+use open_credit_bond::*;
+use close_credit_bond::*;
 use state::*;
 use init_reputation::*;
 use list_for_sale::*;
@@ -63,6 +67,15 @@ pub mod agentvault {
 
     pub fn settle(ctx: Context<Settle>) -> Result<()> {
         settle::handler(ctx)
+    }
+
+    // ── Credit Bond ──────────────────────────────────────────────────
+    pub fn open_credit_bond(ctx: Context<OpenCreditBond>) -> Result<()> {
+        open_credit_bond::handler(ctx)
+    }
+
+    pub fn close_credit_bond(ctx: Context<CloseCreditBond>) -> Result<()> {
+        close_credit_bond::handler(ctx)
     }
 
     // ── Factoring / Early Exit (v0.4.0) ──────────────────────────────

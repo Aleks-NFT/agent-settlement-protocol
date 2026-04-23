@@ -55,4 +55,14 @@ pub enum AspError {
     InvalidSellerAccount,
     #[msg("Already transferred — multi-hop secondary market not supported in v0.4.0")]
     AlreadyTransferred,
+
+    // ─── Credit Bond ─────────────────────────────────────────────────────────
+    #[msg("Trust score too low to open a credit bond (minimum: 81)")]
+    TrustScoreTooLow,
+    #[msg("Credit bond is not active")]
+    CreditBondInactive,
+    #[msg("Amount exceeds available credit limit")]
+    CreditLimitExceeded,
+    #[msg("Credit bond still has outstanding positions")]
+    CreditBondHasOpenPositions,
 }

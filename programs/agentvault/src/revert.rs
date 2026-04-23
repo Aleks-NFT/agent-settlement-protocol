@@ -34,6 +34,14 @@ pub fn handler(ctx: Context<Revert>, reason: RevertReason) -> Result<()> {
     // Revival attack protection
     vault.is_closed = true;
 
+    // Release credit if this position was backed by a credit bond
+    if let Some(ref mut bond) = ctx.accounts.credit_bond {
+        if bond.is_active {
+            bond.credit_used = bond.credit_used
+                .saturating_sub(ctx.accounts.vault.amount_locked);
+        }
+    }
+
     // Mild trust penalty — revert is a feature, not a failure
     reputation.reverted_settlements = reputation
         .reverted_settlements
@@ -119,6 +127,13 @@ pub struct Revert<'info> {
         bump,
     )]
     pub reputation: Account<'info, ReputationAccount>,
+
+    #[account(
+        mut,
+        seeds = [b"credit_bond", agent.key().as_ref()],
+        bump,
+    )]
+    pub credit_bond: Option<Account<'info, CreditBond>>,
 
     pub token_program: Program<'info, Token>,
 }

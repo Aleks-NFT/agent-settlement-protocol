@@ -55,6 +55,14 @@ pub struct Lock<'info> {
     pub vault_usdc: Account<'info, TokenAccount>,
     pub usdc_mint: Account<'info, Mint>,
 
+    #[account(
+        mut,
+        seeds = [b"credit_bond", agent.key().as_ref()],
+        bump,
+        constraint = credit_bond.agent == agent.key() @ AspError::UnauthorizedAgent,
+    )]
+    pub credit_bond: Option<Account<'info, CreditBond>>,
+
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
@@ -74,16 +82,23 @@ pub fn handler(
     let fee_bps = reputation.fee_bps();
     let collateral_ratio = reputation.collateral_ratio();
 
-    // 2. Считаем сколько блокируем в escrow: amount + collateral
-    let collateral = amount
-        .checked_mul(collateral_ratio as u64)
-        .ok_or(AspError::ArithmeticOverflow)?
-        .checked_div(100)
-        .ok_or(AspError::ArithmeticOverflow)?;
-
-    let escrow_amount = amount
-        .checked_add(collateral)
-        .ok_or(AspError::ArithmeticOverflow)?;
+    // 2. Collateral: zero if agent has an active credit bond, standard otherwise
+    let (collateral, escrow_amount) = if let Some(ref bond) = ctx.accounts.credit_bond {
+        require!(bond.is_active, AspError::CreditBondInactive);
+        let available = bond.credit_limit
+            .checked_sub(bond.credit_used)
+            .ok_or(AspError::ArithmeticOverflow)?;
+        require!(amount <= available, AspError::CreditLimitExceeded);
+        (0u64, amount)
+    } else {
+        let col = amount
+            .checked_mul(collateral_ratio as u64)
+            .ok_or(AspError::ArithmeticOverflow)?
+            .checked_div(100)
+            .ok_or(AspError::ArithmeticOverflow)?;
+        let esc = amount.checked_add(col).ok_or(AspError::ArithmeticOverflow)?;
+        (col, esc)
+    };
 
     // 3. Трансфер USDC агента → vault escrow
     let cpi_ctx = CpiContext::new(
@@ -95,6 +110,13 @@ pub fn handler(
         },
     );
     token::transfer(cpi_ctx, escrow_amount)?;
+
+    // If credit bond was used, charge credit_used
+    if let Some(ref mut bond) = ctx.accounts.credit_bond {
+        bond.credit_used = bond.credit_used
+            .checked_add(amount)
+            .ok_or(AspError::ArithmeticOverflow)?;
+    }
 
     // 4. Инициализируем Settlement NFT
     let clock = Clock::get()?;
