@@ -58,6 +58,12 @@ export const findVaultUsdc = (vault: PublicKey) =>
     PROGRAM_ID,
   )[0];
 
+export const findCreditBond = (agent: PublicKey) =>
+  PublicKey.findProgramAddressSync(
+    [Buffer.from("credit_bond"), agent.toBuffer()],
+    PROGRAM_ID,
+  )[0];
+
 export const explorer = (sig: string, cluster = "devnet") =>
   `https://explorer.solana.com/tx/${sig}?cluster=${cluster}`;
 

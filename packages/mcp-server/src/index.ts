@@ -9,18 +9,24 @@ import {
 import { lockTool } from "./tools/lock.js";
 import { preCheckTool } from "./tools/preCheck.js";
 import { executeTradeTool } from "./tools/executeTrade.js";
+import { postCheckTool } from "./tools/postCheck.js";
 import { settleTool } from "./tools/settle.js";
 import { revertTool } from "./tools/revert.js";
 import { listForSaleTool } from "./tools/listForSale.js";
+import { openCreditBondTool } from "./tools/openCreditBond.js";
+import { closeCreditBondTool } from "./tools/closeCreditBond.js";
 import { AgentVaultTool } from "./tools/types.js";
 
 const tools: AgentVaultTool[] = [
   lockTool,
   preCheckTool,
   executeTradeTool,
+  postCheckTool,
   settleTool,
   revertTool,
   listForSaleTool,
+  openCreditBondTool,
+  closeCreditBondTool,
 ];
 
 const toolMap = new Map(tools.map((t) => [t.name, t]));
