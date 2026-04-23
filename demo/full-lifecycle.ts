@@ -87,6 +87,7 @@ async function main() {
     .lock(marketId, amount, { yes: {} }, new BN(5000))
     .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
       reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
+      creditBond: null,
       tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId })
     .rpc();
   ok("Status",  JSON.stringify((await accounts(program).settlementNft.fetch(nftPda)).status));
@@ -160,7 +161,8 @@ async function main() {
   const settleTx  = await program.methods.settle()
     .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
       agentUsdc, feeCollector, reputation: repPda,
-      pythPriceFeed: feed.publicKey, tokenProgram: TOKEN_PROGRAM_ID }).rpc();
+      pythPriceFeed: feed.publicKey, creditBond: null,
+      tokenProgram: TOKEN_PROGRAM_ID }).rpc();
   const rep2 = await accounts(program).reputationAccount.fetch(repPda);
   const nft3 = await accounts(program).settlementNft.fetch(nftPda);
   const fee  = Number(balBefore.amount) - Number((await getAccount(connection, agentUsdc)).amount);
