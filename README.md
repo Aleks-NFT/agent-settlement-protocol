@@ -12,6 +12,28 @@
 
 ---
 
+## Hackathon Quickstart
+
+> **Required:** `cargo-build-sbf` with platform-tools ≥ v1.54, `anchor-cli` 0.32.x, `node` ≥ 18, `yarn`.
+> Run `yarn check:env` to verify your environment before building.
+
+```bash
+yarn install
+yarn build:hackathon   # compile SBF + generate IDL + generate TS types
+yarn test:hackathon    # build then run full LiteSVM test suite
+```
+
+**Why not `anchor build`?** The standard pipeline defaults to platform-tools v1.48 (rustc 1.84),
+which rejects crates requiring `edition2024` pulled transitively through the dependency graph.
+`build:hackathon` explicitly passes `--tools-version v1.54` and handles IDL generation separately.
+
+```bash
+# One-line env check
+bash scripts/check-env.sh
+```
+
+---
+
 ## The Problem
 
 The market is solving Oracle Problem: who decides what happened.

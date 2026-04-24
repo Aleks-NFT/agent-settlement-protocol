@@ -5,6 +5,9 @@ target/
 
 # Node
 node_modules/
+
+# Test logs
+logs/
 .pnp
 .pnp.js
 
