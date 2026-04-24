@@ -9,7 +9,7 @@ skip-lint = false
 agentvault = "5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW"
 
 [programs.localnet]
-agentvault = "3MEhXTGUxSNj59rgafTXoBXdsnj7CDQPjk5J29ReHXKx"
+agentvault = "5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW"
 
 [provider]
 cluster = "devnet"
