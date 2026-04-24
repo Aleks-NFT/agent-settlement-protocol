@@ -871,4 +871,29 @@ describe("agentvault [litesvm]", () => {
     assert.ok(bondAfter.creditUsed.eq(new BN(0)), "credit_used should be 0 after revert");
   });
 
+  it("lock without bond — full collateral applied, ratio=200%", async () => {
+    // Agent with trust_score=50 → collateral_ratio=100%, escrow = amount + collateral = amount * 2
+    const agent = Keypair.generate();
+    airdrop(agent.publicKey);
+    const repPda = await setupReputation(agent); // trust_score=50
+
+    const usdcMint = await createTestMint(agent);
+    const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
+    const amount = new BN(1_000_000);
+    // Mint enough for amount + 100% collateral = 2_000_000
+    await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
+
+    // Lock WITHOUT passing creditBond — should use standard collateral path
+    const { nftPda, vaultPda } = await setupLock(agent, repPda, usdcMint, agentUsdc, amount);
+
+    const vault = await program.account.vault.fetch(vaultPda);
+    const nft = await program.account.settlementNft.fetch(nftPda);
+
+    // trust_score=50 → collateral_ratio=100 → collateral = amount * 100 / 100 = amount
+    assert.ok(vault.collateral.eq(amount), "collateral should equal amount (ratio=100%)");
+    assert.ok(vault.amountLocked.eq(amount), "amount_locked should equal position amount");
+    assert.equal(nft.collateralRatio, 100, "collateral_ratio should be 100 for trust_score=50");
+    assert.deepEqual(nft.status, { locked: {} }, "status should be Locked");
+  });
+
 });
