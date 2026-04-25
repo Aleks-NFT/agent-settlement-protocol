@@ -205,7 +205,7 @@ describe("agentvault [litesvm]", () => {
     const agentUsdc = await createTestTokenAccount(agent, usdcMint, agent);
     await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
     const { nftPda, vaultPda, vaultUsdc } = await setupLock(agent, repPda, usdcMint, agentUsdc, new BN(1_000_000_000));
-    const accs = { agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID };
+    const accs = { creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID };
     await program.methods.revert({ agentInitiated: {} }).accounts(accs).signers([agent]).rpc();
     try {
       await program.methods.revert({ agentInitiated: {} }).accounts(accs).signers([agent]).rpc();
@@ -232,7 +232,7 @@ describe("agentvault [litesvm]", () => {
       .signers([agent]).rpc();
     assert.deepEqual((await program.account.settlementNft.fetch(nftPda)).status, { preChecked: {} });
     await program.methods.executeTrade(new BN(1_000_000))
-      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
     const nft = await program.account.settlementNft.fetch(nftPda);
     assert.deepEqual(nft.status, { executed: {} });
@@ -252,7 +252,7 @@ describe("agentvault [litesvm]", () => {
     const { nftPda, vaultPda, vaultUsdc } = await setupLock(agent, repPda, usdcMint, agentUsdc, new BN(1_000_000_000));
     try {
       await program.methods.executeTrade(new BN(1_000_000))
-        .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+        .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
         .signers([agent]).rpc();
       assert.fail("Expected InvalidStatus error");
     } catch (err) { assert.include(err.message, "InvalidStatus"); }
@@ -276,7 +276,7 @@ describe("agentvault [litesvm]", () => {
       .signers([agent]).rpc();
     try {
       await program.methods.executeTrade(new BN(0))
-        .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+        .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
         .signers([agent]).rpc();
       assert.fail("Expected InvalidFillPrice error");
     } catch (err) { assert.include(err.message, "InvalidFillPrice"); }
@@ -307,7 +307,7 @@ describe("agentvault [litesvm]", () => {
       .signers([agent]).rpc();
 
     await program.methods.executeTrade(new BN(1_000_000))
-      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
 
     await program.methods.postCheck()
@@ -316,6 +316,7 @@ describe("agentvault [litesvm]", () => {
 
     await program.methods.settle()
       .accounts({
+        creditBond: null,
         agent: agent.publicKey,
         settlementNft: nftPda,
         vault: vaultPda,
@@ -359,6 +360,7 @@ describe("agentvault [litesvm]", () => {
     try {
       await program.methods.settle()
         .accounts({
+          creditBond: null,
           agent: agent.publicKey,
           settlementNft: nftPda,
           vault: vaultPda,
@@ -402,7 +404,7 @@ describe("agentvault [litesvm]", () => {
       .signers([agent]).rpc();
 
     await program.methods.executeTrade(new BN(1_000_000))
-      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
 
     await program.methods.postCheck()
@@ -415,6 +417,7 @@ describe("agentvault [litesvm]", () => {
     try {
       await program.methods.settle()
         .accounts({
+          creditBond: null,
           agent: agent.publicKey,
           settlementNft: nftPda,
           vault: vaultPda,
@@ -459,7 +462,7 @@ describe("agentvault [litesvm]", () => {
       .signers([agent]).rpc();
 
     await program.methods.executeTrade(new BN(1_000_000))
-      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
 
     await program.methods.postCheck()
@@ -494,12 +497,13 @@ describe("agentvault [litesvm]", () => {
       .signers([agent]).rpc();
 
     await program.methods.executeTrade(new BN(1_000_000))
-      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
 
     try {
       await program.methods.settle()
         .accounts({
+          creditBond: null,
           agent: agent.publicKey,
           settlementNft: nftPda,
           vault: vaultPda,
@@ -756,6 +760,7 @@ describe("agentvault [litesvm]", () => {
 
     await program.methods.lock(marketId, amount, { yes: {} }, new BN(1000))
       .accounts({
+        creditBond: null,
         agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
         reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
         tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
@@ -799,6 +804,7 @@ describe("agentvault [litesvm]", () => {
     try {
       await program.methods.lock(marketId, tooMuch, { yes: {} }, new BN(1000))
         .accounts({
+          creditBond: null,
           agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
           reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
           tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
@@ -841,6 +847,7 @@ describe("agentvault [litesvm]", () => {
 
     await program.methods.lock(marketId, amount, { yes: {} }, new BN(1000))
       .accounts({
+        creditBond: null,
         agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
         reputation: repPda, agentUsdc, vaultUsdc, usdcMint,
         tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
@@ -853,6 +860,7 @@ describe("agentvault [litesvm]", () => {
 
     await program.methods.revert({ agentInitiated: {} })
       .accounts({
+        creditBond: null,
         agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda,
         vaultUsdc, agentUsdc, reputation: repPda,
         creditBond: creditBondPda, tokenProgram: TOKEN_PROGRAM_ID,

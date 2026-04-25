@@ -5,9 +5,6 @@ target/
 
 # Node
 node_modules/
-
-# Test logs
-logs/
 .pnp
 .pnp.js
 
@@ -23,11 +20,15 @@ Thumbs.db
 .vscode/settings.json
 .idea/
 
-# Solana keypairs (НИКОГДА не коммить!)
+# Solana keypairs
+# id.json — кошелёк деплоера, НИКОГДА не коммить
 id.json
-# Build artifacts
-target/.*.json
-.anchor/.*.json
-!Anchor.toml
-target/
-keys/
+
+# ВСЕ json игнорируем кроме program keypair
+*.json
+!keys/agentvault-keypair.json   
+
+# Block agent-regenerated stale tests
+tests/agentvault.ts
+tests/*.ts.bak
+tests/*.ts.disabled
