@@ -80,7 +80,7 @@ describe("agentvault [litesvm]", () => {
     const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from("vault"), nftPda.toBuffer()], program.programId);
     const [vaultUsdc] = PublicKey.findProgramAddressSync([Buffer.from("vault_usdc"), vaultPda.toBuffer()], program.programId);
     await program.methods.lock(marketId, amount, { yes: {} }, timeoutSlots)
-      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, reputation: repPda, agentUsdc, vaultUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId })
+      .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, reputation: repPda, agentUsdc, vaultUsdc, usdcMint, tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId })
       .signers([agent]).rpc();
     return { marketId, nftPda, vaultPda, vaultUsdc };
   }
@@ -188,7 +188,7 @@ describe("agentvault [litesvm]", () => {
     await mintTokens(agent, usdcMint, agentUsdc, agent, 10_000_000_000);
     const { nftPda, vaultPda, vaultUsdc } = await setupLock(agent, repPda, usdcMint, agentUsdc, new BN(1_000_000_000));
     await program.methods.revert({ agentInitiated: {} })
-      .accounts({ agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
+      .accounts({ creditBond: null, agent: agent.publicKey, settlementNft: nftPda, vault: vaultPda, vaultUsdc, agentUsdc, reputation: repPda, tokenProgram: TOKEN_PROGRAM_ID })
       .signers([agent]).rpc();
     assert.deepEqual((await program.account.settlementNft.fetch(nftPda)).status, { reverted: {} });
     assert.equal((await program.account.vault.fetch(vaultPda)).isClosed, true);

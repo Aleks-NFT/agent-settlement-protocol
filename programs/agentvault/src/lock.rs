@@ -59,7 +59,6 @@ pub struct Lock<'info> {
         mut,
         seeds = [b"credit_bond", agent.key().as_ref()],
         bump,
-        constraint = credit_bond.agent == agent.key() @ AspError::UnauthorizedAgent,
     )]
     pub credit_bond: Option<Account<'info, CreditBond>>,
 
