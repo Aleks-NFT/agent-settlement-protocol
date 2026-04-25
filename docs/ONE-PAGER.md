@@ -33,17 +33,19 @@ LOCK → PRE-CHECK → EXECUTE → POST-CHECK → SETTLE
 
 ## Proof It Works
 
-- **19/19 tests passing** (LiteSVM — in-process Solana VM, no validator needed)
-- **3 version tags shipped:**
-  - `v0.3.0-settle-green` — full LOCK→SETTLE lifecycle
-  - `v0.3.1-precheck-pyth` — oracle-guarded pre-check + auto-revert on stale feed
+- **32/32 tests passing** (LiteSVM — in-process Solana VM, no validator needed)
+- **5 version tags shipped:**
+  - `v0.5.0-tests-green` — 32/32 LiteSVM tests passing, credit_bond optional handling
+  - `v0.4.2-devnet-live` — deployed to devnet with new Program ID
   - `v0.4.0-factoring-green` — list_for_sale + buy_settlement
+  - `v0.3.1-precheck-pyth` — oracle-guarded pre-check + auto-revert on stale feed
+  - `v0.3.0-settle-green` — full LOCK→SETTLE lifecycle
 - **Live devnet transactions:**
   - lock: `5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt`
   - [View lock TX on Solana Explorer](https://explorer.solana.com/tx/5wMNuYAUyRZUq6TsAdUeFBLSzngffcYnUKzPKb5cqFXgJFxN7wzNNPo5ZjfbZdmcAyKcLEUMmmU7RSA85YYA8MZt?cluster=devnet)
   - `list_for_sale`: `5sCMaHeRQZALwMS4tFe7J7yp1ZFJ8jwcJfPuEmviyAqpqzwfJcb1n9t2R5Z124JtJS43W2g9RxpDYDQ5bKs4gvMB`
   - `buy_settlement`: `3jgtf6NShro1afXL7JR4CsuJRcjUuPstLsTVzxoSgqJ3cQ8ikZX2d9TpLPzrsv17bG55X8vtEYnk98o8AebF9gwr`
-- **Program ID:** `24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ` (devnet)
+- **Program ID:** `5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW` (devnet)
 - **3 demo scripts:** `full-lifecycle.ts`, `factoring-flow.ts`, `oracle-failure.ts`
 - **Test suite:** [`tests/agentvault-litesvm.ts`](tests/agentvault-litesvm.ts)
 
@@ -74,7 +76,7 @@ Piter (@FirstNFT), Kyiv — solo builder. Five weeks, production Rust + Anchor.
 ```bash
 git clone https://github.com/Aleks-NFT/agent-settlement-protocol
 cd agent-settlement-protocol
-npm install
+yarn install
 npx ts-node --esm demo/full-lifecycle.ts
 ```
 
