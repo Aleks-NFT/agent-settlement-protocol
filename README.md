@@ -7,8 +7,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)](https://solana.com)
 [![Colosseum Frontier](https://img.shields.io/badge/Hackathon-Colosseum%20Frontier%202026-blue)](https://colosseum.com/frontier)
-[![Tests](https://img.shields.io/badge/Tests-19%2F19%20passing-brightgreen)](https://github.com/Aleks-NFT/agent-settlement-protocol)
-[![Devnet](https://img.shields.io/badge/Devnet-live-9945FF)](https://explorer.solana.com/address/24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ?cluster=devnet)
+[![Tests](https://img.shields.io/badge/Tests-32%2F32%20passing-brightgreen)](https://github.com/Aleks-NFT/agent-settlement-protocol)
+[![Devnet](https://img.shields.io/badge/Devnet-live-9945FF)](https://explorer.solana.com/address/5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW?cluster=devnet)
 
 ---
 
@@ -160,11 +160,11 @@ More settlements -> Higher trust -> Lower fee + Less collateral -> More settleme
 
 | | |
 |---|---|
-| **Program ID** | `24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ` |
+| **Program ID** | `5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW` |
 | **Network** | Solana Devnet |
-| **Framework** | Anchor 0.31 |
-| **Tests** | 19/19 passing |
-| **Explorer** | https://explorer.solana.com/address/24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ?cluster=devnet |
+| **Framework** | Anchor 0.32.1 |
+| **Tests** | 32/32 passing |
+| **Explorer** | https://explorer.solana.com/address/5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW?cluster=devnet |
 
 ---
 
@@ -174,7 +174,7 @@ More settlements -> Higher trust -> Lower fee + Less collateral -> More settleme
 
 ```bash
 node >= 20
-anchor >= 0.31
+anchor >= 0.32
 solana-cli >= 1.18
 ```
 
@@ -186,7 +186,7 @@ cd agent-settlement-protocol
 yarn install
 ```
 
-### Run Tests (19/19)
+### Run Tests (32/32)
 
 ```bash
 anchor test
@@ -284,9 +284,9 @@ Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `re
 
 | Layer | Technology |
 |---|---|
-| Smart contracts | Rust + Anchor 0.31 |
+| Smart contracts | Rust + Anchor 0.32.1 |
 | Oracle | Pyth Network (raw binary feed parser) |
-| Testing | LiteSVM (19/19 tests) |
+| Testing | LiteSVM (32/32 tests) |
 | Agent interface | MCP Tools + Solana Actions (Blinks) |
 | Transaction cost | $0.00025 |
 
@@ -299,10 +299,10 @@ Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `re
 | Core state machine (lock / revert / preCheck / execute / settle) | Done |
 | Pyth price feed integration | Done |
 | Reputation + PolicyController | Done |
-| 19/19 LiteSVM tests | Done |
+| 32/32 LiteSVM tests | Done |
 | Devnet deploy | Done |
 | Live demo script | Done |
-| Post-check instruction | Next |
+| Post-check instruction | Done |
 | Multi-agent batch settlement | Next |
 | Mainnet deploy | Post-hackathon |
 
