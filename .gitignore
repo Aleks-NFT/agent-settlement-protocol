@@ -38,3 +38,6 @@ libexecute.rlib
 *.rlib
 Cargo.lock.bak
 *.bak
+
+# Test run logs
+logs/
