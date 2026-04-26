@@ -24,11 +24,17 @@ Thumbs.db
 # id.json — кошелёк деплоера, НИКОГДА не коммить
 id.json
 
-# ВСЕ json игнорируем кроме program keypair
+# All JSON except program keypair
 *.json
-!keys/agentvault-keypair.json   
+!keys/agentvault-keypair.json
 
 # Block agent-regenerated stale tests
 tests/agentvault.ts
 tests/*.ts.bak
 tests/*.ts.disabled
+
+# Stale binary artifacts
+libexecute.rlib
+*.rlib
+Cargo.lock.bak
+*.bak

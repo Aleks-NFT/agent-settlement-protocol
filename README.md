@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)](https://solana.com)
 [![Colosseum Frontier](https://img.shields.io/badge/Hackathon-Colosseum%20Frontier%202026-blue)](https://colosseum.com/frontier)
-[![Tests](https://img.shields.io/badge/Tests-32%2F32%20passing-brightgreen)](https://github.com/Aleks-NFT/agent-settlement-protocol)
+[![Tests](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml)
 [![Devnet](https://img.shields.io/badge/Devnet-live-9945FF)](https://explorer.solana.com/address/5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW?cluster=devnet)
 
 ---
