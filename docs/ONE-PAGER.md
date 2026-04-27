@@ -67,11 +67,13 @@ Wedge: prediction-market agents running multi-step strategies with zero recourse
 
 ## Team
 
-Piter (@FirstNFT), Kyiv — solo builder. Five weeks, production Rust + Anchor.
+Aleks (@FirstNFT), Kyiv — solo builder. Five weeks, production Rust + Anchor.
 
 ---
 
 ## Try It
+
+**Run the demo:**
 
 ```bash
 git clone https://github.com/Aleks-NFT/agent-settlement-protocol
@@ -79,5 +81,13 @@ cd agent-settlement-protocol
 yarn install
 npx ts-node --esm demo/full-lifecycle.ts
 ```
+
+**Use from Claude Desktop / Cursor:**
+
+```bash
+npx agentvault-mcp-server
+```
+
+[MCP setup guide](./MCP-SETUP.md) — plug AgentVault into any MCP-compatible AI client in one command.
 
 **GitHub:** [github.com/Aleks-NFT/agent-settlement-protocol](https://github.com/Aleks-NFT/agent-settlement-protocol)

@@ -34,6 +34,32 @@ bash scripts/check-env.sh
 
 ---
 
+## Use from Claude Desktop / Cursor
+
+Install the MCP server and plug AgentVault into your AI workflow:
+
+```bash
+npx agentvault-mcp-server
+```
+
+Or point Claude Desktop directly at the built entry (local dev):
+
+```json
+{
+  "mcpServers": {
+    "agentvault": {
+      "command": "node",
+      "args": ["/absolute/path/to/agent-settlement-protocol/packages/mcp-server/dist/index.js"],
+      "env": { "SOLANA_CLUSTER": "devnet" }
+    }
+  }
+}
+```
+
+[Full setup guide →](./docs/MCP-SETUP.md)
+
+---
+
 ## The Problem
 
 The market is solving Oracle Problem: who decides what happened.

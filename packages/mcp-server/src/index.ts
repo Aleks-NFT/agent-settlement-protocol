@@ -6,6 +6,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
+import { initReputationTool } from "./tools/initReputation.js";
 import { lockTool } from "./tools/lock.js";
 import { preCheckTool } from "./tools/preCheck.js";
 import { executeTradeTool } from "./tools/executeTrade.js";
@@ -13,11 +14,13 @@ import { postCheckTool } from "./tools/postCheck.js";
 import { settleTool } from "./tools/settle.js";
 import { revertTool } from "./tools/revert.js";
 import { listForSaleTool } from "./tools/listForSale.js";
+import { buySettlementTool } from "./tools/buySettlement.js";
 import { openCreditBondTool } from "./tools/openCreditBond.js";
 import { closeCreditBondTool } from "./tools/closeCreditBond.js";
 import { AgentVaultTool } from "./tools/types.js";
 
 const tools: AgentVaultTool[] = [
+  initReputationTool,
   lockTool,
   preCheckTool,
   executeTradeTool,
@@ -25,6 +28,7 @@ const tools: AgentVaultTool[] = [
   settleTool,
   revertTool,
   listForSaleTool,
+  buySettlementTool,
   openCreditBondTool,
   closeCreditBondTool,
 ];
@@ -32,7 +36,7 @@ const tools: AgentVaultTool[] = [
 const toolMap = new Map(tools.map((t) => [t.name, t]));
 
 const server = new Server(
-  { name: "agentvault-mcp", version: "0.1.0" },
+  { name: "agentvault-mcp", version: "1.1.0" },
   { capabilities: { tools: {} } },
 );
 

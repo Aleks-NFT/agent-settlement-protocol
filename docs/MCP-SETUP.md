@@ -1,35 +1,34 @@
 # AgentVault MCP Setup
 
-Wire AgentVault into Claude Desktop (or any MCP-compatible client) so an agent can drive the full settlement envelope — `lock → preCheck → executeTrade → settle`, plus `revert` and `listForSale` — from chat.
+Wire AgentVault into Claude Desktop (or any MCP-compatible client) so an AI agent can drive the full settlement lifecycle — `initReputation → lock → preCheck → executeTrade → settle`, plus `revert` and factoring tools — directly from chat.
 
 ## Prerequisites
 
-- Node.js ≥ 20
-- A Solana wallet funded on devnet (`solana airdrop 2`)
-- An agent USDC token account on devnet (use `spl-token create-account` against the devnet USDC mint)
+- Node.js ≥ 18
+- A Solana wallet keypair at `~/.config/solana/id.json` (or set `WALLET_KEYPAIR`)
+- Devnet SOL for transaction fees (`solana airdrop 2 --url devnet`)
+- A USDC token account on devnet
 
-## 1. Install
+## Step 1 — Build the server (local dev)
 
 ```bash
-# From a published release (once live)
-npm install -g @agentvault/mcp-server
-
-# Or, during development, from this repo
 cd packages/mcp-server
 npm install
 npm run build
+# Verify: node dist/index.js < /dev/null
 ```
 
-## 2. Configure Claude Desktop
+## Step 2 — Configure Claude Desktop
 
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%/Claude/claude_desktop_config.json` (Windows):
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)  
+or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
 {
   "mcpServers": {
     "agentvault": {
-      "command": "npx",
-      "args": ["-y", "@agentvault/mcp-server"],
+      "command": "node",
+      "args": ["/absolute/path/to/agent-settlement-protocol/packages/mcp-server/dist/index.js"],
       "env": {
         "SOLANA_CLUSTER": "devnet",
         "WALLET_KEYPAIR": "/Users/you/.config/solana/id.json"
@@ -39,55 +38,66 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 }
 ```
 
-During local development, point directly at the built entry:
+Once published to npm, replace with:
 
 ```json
 {
   "mcpServers": {
     "agentvault": {
-      "command": "node",
-      "args": ["/absolute/path/to/agent-settlement-protocol/packages/mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "agentvault-mcp-server"],
       "env": {
-        "SOLANA_CLUSTER": "devnet"
+        "SOLANA_CLUSTER": "devnet",
+        "WALLET_KEYPAIR": "/Users/you/.config/solana/id.json"
       }
     }
   }
 }
 ```
 
-## 3. Environment Variables
+Restart Claude Desktop after editing the config.
+
+## Step 3 — Verify
+
+After restart, the following 11 tools should appear in Claude's tool list:
+
+| Tool | Purpose |
+|---|---|
+| `initReputation` | Onboard agent — required once before any other tool |
+| `lock` | Open settlement envelope, escrow USDC, mint Settlement NFT |
+| `preCheck` | Validate Pyth price within tolerance + liquidity |
+| `executeTrade` | Record fill price, release collateral |
+| `postCheck` | Verify fill outcome against oracle |
+| `settle` | Finalize, deduct fee, bump trust score |
+| `revert` | Atomic rollback at any stage — full USDC refund |
+| `listForSale` | List position for factoring (early exit) |
+| `buySettlement` | Buy a listed Settlement NFT, inherit all guarantees |
+| `openCreditBond` | Open credit line (trust score > 80 required) |
+| `closeCreditBond` | Close credit bond and settle outstanding |
+
+Quick sanity check via MCP Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector node packages/mcp-server/dist/index.js
+```
+
+## Environment Variables
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `SOLANA_CLUSTER` | `devnet` | `devnet` \| `mainnet-beta` \| `testnet` \| `localnet` |
-| `RPC_URL` | cluster default | Override the RPC endpoint |
-| `WALLET_KEYPAIR` | `~/.config/solana/id.json` | Path to the agent's keypair JSON file |
+| `SOLANA_CLUSTER` | `devnet` | `devnet` \| `mainnet-beta` \| `localnet` |
+| `RPC_URL` | cluster default | Override RPC endpoint |
+| `WALLET_KEYPAIR` | `~/.config/solana/id.json` | Agent keypair path |
 
-## 4. Verify
+## Program
 
-Restart Claude Desktop. The six tools should appear in the MCP tool list:
+- **Program ID:** `5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW`
+- **Network:** Solana Devnet
+- **IDL:** bundled at `packages/mcp-server/idl/agentvault.json`
 
-- `lock` — open a settlement envelope, escrow USDC, mint Settlement NFT
-- `preCheck` — validate Pyth price within tolerance + liquidity + timeout
-- `executeTrade` — fill at observed price, record outcome
-- `settle` — finalize, deduct fee, return collateral, bump trust score
-- `revert` — abort at any stage, full refund, trust −1
-- `listForSale` — list the locked position for factoring (early exit)
+## Example Claude Session
 
-Quick sanity check from the MCP inspector:
+> "Initialize my reputation, then lock 1 USDC on a YES position with a 500-slot timeout."
 
-```bash
-npx @modelcontextprotocol/inspector node dist/index.js
-```
-
-## 5. Example Session
-
-Ask Claude:
-
-> Lock a 1 USDC YES position on BTC-Apr26 with a 500-slot timeout. My agent USDC is at `<token-account>`.
-
-Claude calls `lock` → returns `txSignature`, `settlementNft`, `marketId`, and an Explorer link. Follow up with `preCheck`, `executeTrade`, and `settle` referencing the same `marketId`.
-
-## Program ID
-
-`24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ` (devnet + localnet). The server loads the IDL from `packages/mcp-server/idl/agentvault.json` at runtime — regenerate it with `anchor build` and the `prepublishOnly` hook will copy it into the package before publish.
+Claude calls `initReputation` → then `lock` → returns `txSignature`, `settlementNft`, `marketId`, and an Explorer link.  
+Follow up with `preCheck`, `executeTrade`, `postCheck`, and `settle` referencing the same `marketId`.

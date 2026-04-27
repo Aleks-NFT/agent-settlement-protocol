@@ -1,13 +1,13 @@
 {
   "name": "agentvault-mcp-server",
   "version": "1.1.0",
-  "description": "MCP Server for agent-settlement-protocol",
+  "description": "MCP server for AgentVault — Agent Settlement Protocol on Solana",
   "main": "dist/index.js",
   "type": "module",
   "files": [
     "dist",
     "idl",
-    "scripts"
+    "README.md"
   ],
   "scripts": {
     "start": "node dist/index.js",
@@ -19,19 +19,31 @@
     "mcp",
     "agent",
     "settlement",
-    "solana"
+    "solana",
+    "anchor"
   ],
-  "author": "",
+  "author": "Aleks @FirstNFT",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aleks-NFT/agent-settlement-protocol",
+    "directory": "packages/mcp-server"
+  },
+  "bin": {
+    "agentvault-mcp": "dist/index.js",
+    "agentvault-mcp-server": "dist/index.js"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@solana/spl-token": "^0.4.0",
     "@solana/web3.js": "^1.98.0",
-    "agentvault-mcp-server": "^1.0.7",
     "bn.js": "^5.2.1"
   },
   "devDependencies": {
@@ -41,8 +53,5 @@
   },
   "overrides": {
     "uuid": "^14.0.0"
-  },
-  "bin": {
-    "agentvault-mcp-server": "dist/index.js"
   }
 }
