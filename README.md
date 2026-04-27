@@ -39,7 +39,7 @@ bash scripts/check-env.sh
 The market is solving Oracle Problem: who decides what happened.
 Nobody is solving Settlement Problem: what happens AFTER the oracle decides, for AI agents running complex multi-step strategies.
 
-### Two Real Failures That Prove This
+### Real Failures That Prove This
 
 **UMA Governance Attack - $7M stolen (March 2025)**
 A single whale with 25% of UMA voting tokens forced a false resolution on Polymarket.
@@ -54,10 +54,13 @@ Same Super Bowl event. Same moment. Two different outcomes:
 An agent arbitraging both platforms lost on both sides simultaneously.
 No rollback. No protection. CFTC complaint filed.
 
-**Drift Hack - $285M stolen (April 2026)**
-The largest DeFi hack of 2026. Drift suspended all deposits and withdrawals mid-session.
-Agents running active strategies had zero recourse - no atomic revert, no protection layer, no refund.
-Root cause: no settlement envelope around agent positions.
+**UMA Capital Asymmetry - structural (ongoing 2025-2026)**
+UMA's Optimistic Oracle imposes a 750 USDC bond + 4-day window for any disputer.
+$7M attacker profit > $750 defender cost = mathematical certainty of capital
+attacks. The dispute mechanism rewards attackers proportionally more than
+defenders.
+Root cause: no post-condition verification AFTER oracle resolves. ASP adds
+on-chain post_check that runs INSIDE the same transaction as settlement.
 
 ---
 
@@ -79,13 +82,13 @@ REVERT -> full refund
 
 ## First Use Case: Prediction Markets
 
-Prediction markets do $2B+ per week. 14 of 20 top traders are bots.
+Prediction markets do $2B+ per week. 70%+ of prediction market volume is automated.
 These bots have no clearing house. AgentVault is building it.
 
 ASP wraps every agent strategy in a settlement envelope:
-- **Multi-step atomic execution** - buy, claim, reinvest as one atomic transaction
-- **Cross-venue protection** - Kalshi divergence triggers atomic revert
-- **Trust-weighted economics** - on-chain reputation sets fee and collateral
+- **Cross-venue protection** — Kalshi divergence triggers atomic revert across venues
+- **Trust-weighted economics** — on-chain reputation sets fee and collateral
+- **Verified settlement** — multi-step atomic execution with on-chain Pyth pre-check
 
 ---
 
@@ -267,7 +270,7 @@ Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `re
 ✅ Refunded: 1,000 USDC - full escrow returned
 ✅ Agent loss: 0 USDC
 
-> Without ASP → funds frozen (see Drift Hack $285M, April 2026)
+> Without ASP → funds frozen (see UMA $7M governance attack, Kalshi/Polymarket divergence)
 > With ASP    → oracle fails → auto revert → full refund
 
 ## Security
