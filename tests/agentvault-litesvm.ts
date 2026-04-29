@@ -1,4 +1,5 @@
-import { createRequire } from "module"; const require = createRequire(import.meta.url); const IDL = require("../target/idl/agentvault.json");
+// IDL loaded below via require
+const IDL = require("../target/idl/agentvault.json");
 import { fromWorkspace, LiteSVMProvider } from "anchor-litesvm";
 import * as anchor from "@coral-xyz/anchor";
 import BN from "bn.js";
