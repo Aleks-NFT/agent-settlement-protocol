@@ -36,25 +36,27 @@ bash scripts/check-env.sh
 
 ## Use from Claude Desktop / Cursor
 
-Install the MCP server and plug AgentVault into your AI workflow:
+Any Claude or Cursor user can plug AgentVault into their AI workflow in one command:
 
 ```bash
 npx agentvault-mcp-server
 ```
 
-Or point Claude Desktop directly at the built entry (local dev):
+Or add to `claude_desktop_config.json` for permanent access:
 
 ```json
 {
   "mcpServers": {
     "agentvault": {
-      "command": "node",
-      "args": ["/absolute/path/to/agent-settlement-protocol/packages/mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "agentvault-mcp-server"],
       "env": { "SOLANA_CLUSTER": "devnet" }
     }
   }
 }
 ```
+
+**Available tools:** `lock` · `preCheck` · `executeTrade` · `postCheck` · `settle` · `revert` · `listForSale` · `openCreditBond` · `closeCreditBond` · `initReputation` · `buySettlement`
 
 [Full setup guide →](./docs/MCP-SETUP.md)
 
