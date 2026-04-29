@@ -32,28 +32,6 @@ jobs:
           key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-target-
 
-      - name: Install Solana CLI
-        run: |
-          sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.26/install)"
-          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
-
-      - name: Cache Solana platform tools
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/solana
-          key: ${{ runner.os }}-solana-tools-v1.54
-          restore-keys: ${{ runner.os }}-solana-tools-
-
-      - name: Pre-cache platform tools v1.54
-        run: cargo-build-sbf --tools-version v1.54 --no-deps || true
-
-      - name: Install Anchor CLI 0.32.1 via AVM
-        run: |
-          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
-          avm install 0.32.1
-          avm use 0.32.1
-          echo "$HOME/.avm/bin" >> $GITHUB_PATH
-
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
@@ -69,8 +47,5 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build
-        run: yarn build:hackathon
-
-      - name: Test
+      - name: Run tests (LiteSVM — no SBF toolchain needed)
         run: yarn test:hackathon
