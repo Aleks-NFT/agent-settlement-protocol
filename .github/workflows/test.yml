@@ -9,14 +9,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache Cargo registry + git
+      - name: Cache Cargo
         uses: actions/cache@v4
         with:
           path: |
@@ -24,9 +23,11 @@ jobs:
             ~/.cargo/git
             ~/.cargo/bin
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-anchor-0.32.1
-          restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Install Solana CLI (no SBF tools)
+      - name: Install system deps (libudev for hidapi)
+        run: sudo apt-get install -y libudev-dev pkg-config
+
+      - name: Install Solana CLI
         run: |
           sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.26/install)"
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
@@ -48,16 +49,14 @@ jobs:
         with:
           path: node_modules/
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Copy committed IDL (skip SBF build)
+      - name: Copy IDL
         run: |
           mkdir -p target/idl target/types target/deploy
           cp packages/mcp-server/idl/agentvault.json target/idl/agentvault.json
-          echo "✓ IDL copied from committed version"
 
-      - name: Run tests (LiteSVM — skip build + deploy)
+      - name: Run tests
         run: anchor test --skip-build --skip-deploy
