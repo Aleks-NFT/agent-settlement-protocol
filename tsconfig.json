@@ -11,7 +11,7 @@
     ],
     "rootDir": ".",
     "outDir": "dist",
-    "ignoreDeprecations": "5.0"
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "tests/**/*.ts",
