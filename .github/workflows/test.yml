@@ -1,4 +1,3 @@
-cat > /workspaces/agent-settlement-protocol/.github/workflows/test.yml << 'EOF'
 name: Tests
 
 on:
@@ -35,8 +34,7 @@ jobs:
       - name: Install Anchor CLI 0.32.1
         run: |
           if ! command -v anchor &>/dev/null; then
-            cargo install --git https://github.com/coral-xyz/anchor \
-              --tag v0.32.1 anchor-cli --locked
+            cargo install --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli --locked
           fi
           anchor --version
 
@@ -59,11 +57,7 @@ jobs:
         run: |
           mkdir -p target/idl target/types target/deploy
           cp packages/mcp-server/idl/agentvault.json target/idl/agentvault.json
-          echo '{"programId":"5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW"}' \
-            > target/deploy/agentvault-keypair.json
           echo "✓ IDL copied from committed version"
 
       - name: Run tests (LiteSVM — skip build + deploy)
         run: anchor test --skip-build --skip-deploy
-EOF
-echo "✓ workflow updated"
