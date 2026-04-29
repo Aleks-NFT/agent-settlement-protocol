@@ -1,3 +1,4 @@
+cat > /workspaces/agent-settlement-protocol/.github/workflows/test.yml << 'EOF'
 name: Tests
 
 on:
@@ -22,15 +23,22 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-anchor-0.32.1
           restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Cache build target
-        uses: actions/cache@v4
-        with:
-          path: target/
-          key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-target-
+      - name: Install Solana CLI (no SBF tools)
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.26/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor CLI 0.32.1
+        run: |
+          if ! command -v anchor &>/dev/null; then
+            cargo install --git https://github.com/coral-xyz/anchor \
+              --tag v0.32.1 anchor-cli --locked
+          fi
+          anchor --version
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -47,5 +55,15 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Run tests (LiteSVM — no SBF toolchain needed)
-        run: yarn test:hackathon
+      - name: Copy committed IDL (skip SBF build)
+        run: |
+          mkdir -p target/idl target/types target/deploy
+          cp packages/mcp-server/idl/agentvault.json target/idl/agentvault.json
+          echo '{"programId":"5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW"}' \
+            > target/deploy/agentvault-keypair.json
+          echo "✓ IDL copied from committed version"
+
+      - name: Run tests (LiteSVM — skip build + deploy)
+        run: anchor test --skip-build --skip-deploy
+EOF
+echo "✓ workflow updated"
