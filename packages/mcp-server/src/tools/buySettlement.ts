@@ -1,56 +1,51 @@
 import { PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   getContext,
-  findSettlementNft,
-  findVault,
-  findVaultUsdc,
   explorer,
 } from "../client.js";
-import { AgentVaultTool, requireString } from "./types.js";
+import { AgentVaultTool } from "./types.js";
+
+function requireString(input: Record<string, unknown>, key: string): string {
+  const val = input[key];
+  if (typeof val !== "string" || !val) throw new Error(`Missing required param: ${key}`);
+  return val;
+}
 
 export const buySettlementTool: AgentVaultTool = {
   name: "buySettlement",
   description:
-    "Buy a Settlement NFT listed for factoring (early exit). Pays the seller's ask price from buyer USDC, atomically transfers NFT ownership and inherits all settlement guarantees and vault collateral.",
+    "Buy a settlement NFT listed for early exit (factoring). " +
+    "Transfers USDC from buyer to seller at the listed price and transfers " +
+    "settlement ownership. Useful for liquidity providers who want to " +
+    "acquire positions before final settlement.",
   inputSchema: {
     type: "object",
-    required: ["seller", "marketId", "sellerUsdc", "buyerUsdc", "usdcMint"],
+    required: ["settlementNft", "sellerAddress", "usdcMint"],
     properties: {
-      seller: {
+      settlementNft: {
         type: "string",
-        description: "Seller's agent wallet address (base58). Used to derive the Settlement NFT PDA.",
+        description: "Settlement NFT account public key (base58)",
       },
-      marketId: {
+      sellerAddress: {
         type: "string",
-        description: "Market identifier (base58 public key) of the listed position.",
-      },
-      sellerUsdc: {
-        type: "string",
-        description: "Seller's USDC token account address (base58) to receive payment.",
-      },
-      buyerUsdc: {
-        type: "string",
-        description: "Buyer's USDC token account address (base58) to pay from.",
+        description: "Seller wallet public key (base58)",
       },
       usdcMint: {
         type: "string",
-        description: "SPL USDC mint address (base58).",
+        description: "USDC mint address. Devnet: 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
       },
     },
   },
   async execute(input) {
     const { program, agent, cluster } = getContext();
 
-    const seller = new PublicKey(requireString(input, "seller"));
-    const marketId = new PublicKey(requireString(input, "marketId"));
-    const sellerUsdc = new PublicKey(requireString(input, "sellerUsdc"));
-    const buyerUsdc = new PublicKey(requireString(input, "buyerUsdc"));
-    const usdcMint = new PublicKey(requireString(input, "usdcMint"));
+    const settlementNft = new PublicKey(requireString(input, "settlementNft"));
+    const seller        = new PublicKey(requireString(input, "sellerAddress"));
+    const usdcMint      = new PublicKey(requireString(input, "usdcMint"));
 
-    const settlementNft = findSettlementNft(seller, marketId);
-    const vault = findVault(settlementNft);
-    const vaultUsdc = findVaultUsdc(vault);
+    const sellerUsdc = getAssociatedTokenAddressSync(usdcMint, seller);
+    const buyerUsdc  = getAssociatedTokenAddressSync(usdcMint, agent);
 
     const sig = await program.methods
       .buySettlement()
@@ -68,12 +63,8 @@ export const buySettlementTool: AgentVaultTool = {
       success: true,
       txSignature: sig,
       explorer: explorer(sig, cluster),
-      status: "purchased",
-      marketId: marketId.toBase58(),
-      settlementNft: settlementNft.toBase58(),
-      vault: vault.toBase58(),
-      vaultUsdc: vaultUsdc.toBase58(),
       newOwner: agent.toBase58(),
+      settlementNft: settlementNft.toBase58(),
     };
   },
 };

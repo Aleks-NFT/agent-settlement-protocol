@@ -1,11 +1,18 @@
 import { SystemProgram } from "@solana/web3.js";
-import { getContext, findReputation, explorer } from "../client.js";
+import {
+  getContext,
+  findReputation,
+  explorer,
+} from "../client.js";
 import { AgentVaultTool } from "./types.js";
 
 export const initReputationTool: AgentVaultTool = {
   name: "initReputation",
   description:
-    "Initialize on-chain reputation account for the agent wallet. Must be called once before any other AgentVault instruction. Sets trust score to 50 (Verified tier), which gives 0.50% fee and 100% collateral requirement.",
+    "Initialize an on-chain reputation account for this agent. " +
+    "Must be called once before any other AgentVault operation. " +
+    "Creates a PDA that tracks trust score, settlement count, and " +
+    "revert count. Trust score starts at 50 and adjusts with each settle/revert.",
   inputSchema: {
     type: "object",
     required: [],
@@ -26,16 +33,16 @@ export const initReputationTool: AgentVaultTool = {
       .rpc();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rep = await (program.account as any).reputationAccount.fetch(reputation);
+    const rep = await (program.account as any).reputation.fetch(reputation);
 
     return {
       success: true,
       txSignature: sig,
       explorer: explorer(sig, cluster),
-      agent: agent.toBase58(),
       reputation: reputation.toBase58(),
       trustScore: rep.trustScore,
-      tier: "Verified (trust 50 — fee 0.50%, collateral 100%)",
+      settleCount: rep.settleCount,
+      revertCount: rep.revertCount,
     };
   },
 };
