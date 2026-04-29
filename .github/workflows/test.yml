@@ -59,4 +59,4 @@ jobs:
           cp packages/mcp-server/idl/agentvault.json target/idl/agentvault.json
 
       - name: Run tests
-        run: anchor test --skip-build --skip-deploy
+        run: NODE_OPTIONS="--max-old-space-size=4096" anchor test --skip-build --skip-deploy
