@@ -17,8 +17,6 @@ import { listForSaleTool } from "./tools/listForSale.js";
 import { buySettlementTool } from "./tools/buySettlement.js";
 import { openCreditBondTool } from "./tools/openCreditBond.js";
 import { closeCreditBondTool } from "./tools/closeCreditBond.js";
-import { initReputationTool } from "./tools/initReputation.js";
-import { buySettlementTool } from "./tools/buySettlement.js";
 import { AgentVaultTool } from "./tools/types.js";
 
 const tools: AgentVaultTool[] = [
@@ -33,8 +31,6 @@ const tools: AgentVaultTool[] = [
   buySettlementTool,
   openCreditBondTool,
   closeCreditBondTool,
-  initReputationTool,
-  buySettlementTool,
 ];
 
 const toolMap = new Map(tools.map((t) => [t.name, t]));
