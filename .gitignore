@@ -41,3 +41,5 @@ Cargo.lock.bak
 
 # Test run logs
 logs/
+!target/deploy/agentvault.so
+!target/deploy/agentvault-keypair.json
