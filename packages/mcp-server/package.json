@@ -1,6 +1,6 @@
 {
   "name": "agentvault-mcp-server",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "MCP server for AgentVault — Agent Settlement Protocol on Solana",
   "main": "dist/index.js",
   "type": "module",
