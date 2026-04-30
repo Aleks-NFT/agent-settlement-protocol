@@ -14,9 +14,15 @@ import {
 import { assert } from "chai";
 
 describe("agentvault [litesvm]", () => {
-  const client = fromWorkspace(".");
-  const provider = new LiteSVMProvider(client);
-  const program = new anchor.Program(IDL, provider);
+  let client: ReturnType<typeof fromWorkspace>;
+  let provider: LiteSVMProvider;
+  let program: anchor.Program<any>;
+
+  beforeEach(() => {
+    client = fromWorkspace(".");
+    provider = new LiteSVMProvider(client);
+    program = new anchor.Program(IDL, provider);
+  });
 
   function airdrop(pk, sol = 100) {
     provider.client.airdrop(pk, BigInt(sol * 1_000_000_000));
