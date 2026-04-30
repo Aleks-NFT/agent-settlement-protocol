@@ -64,4 +64,4 @@ jobs:
           swap-size-gb: 8
 
       - name: Run tests
-        run: NODE_OPTIONS="--max-old-space-size=4096" anchor test --skip-build --skip-deploy
+        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" anchor test --skip-build --skip-deploy

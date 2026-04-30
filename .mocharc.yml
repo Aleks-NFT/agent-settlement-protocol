@@ -1,0 +1,3 @@
+parallel: false
+jobs: 1
+timeout: 1000000
