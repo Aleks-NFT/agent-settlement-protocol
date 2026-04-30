@@ -63,8 +63,22 @@ jobs:
         with:
           swap-size-gb: 8
 
-      - name: Run tests
+      - name: Run tests (isolated processes)
         run: |
+          set -e
           free -h
-          NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts
+          for grep in \
+            "PDA|fee|PolicyController|escrow" \
+            "init_reputation" \
+            "lock: SettlementNft|lock → revert|revert twice" \
+            "execute_trade|pre_check → execute_trade|InvalidFill" \
+            "settle|post_check|PriceStale" \
+            "list_for_sale|buy_settlement" \
+            "credit_bond"; do
+            echo "::group::Tests: $grep"
+            NODE_OPTIONS="--max-old-space-size=4096" \
+              yarn ts-mocha -p ./tsconfig.json -t 1000000 \
+              tests/agentvault-litesvm.ts --grep "$grep"
+            echo "::endgroup::"
+          done
           free -h
