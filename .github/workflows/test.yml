@@ -63,20 +63,8 @@ jobs:
         with:
           swap-size-gb: 8
 
-      - name: Tests 1 - unit (PDA, fee, policy, escrow)
-        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "PDA|fee|PolicyController|escrow"
-
-      - name: Tests 2 - reputation + simple lock
-        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "init_reputation|lock: SettlementNft|lock → revert|revert twice"
-
-      - name: Tests 3 - execute_trade
-        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "execute_trade|pre_check → execute_trade|InvalidFill"
-
-      - name: Tests 4 - settle
-        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "settle|post_check|PriceStale"
-
-      - name: Tests 5 - NFT market
-        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "list_for_sale|buy_settlement"
-
-      - name: Tests 6 - credit_bond
-        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "credit_bond" 
+      - name: Run tests
+        run: |
+          free -h
+          NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts
+          free -h
