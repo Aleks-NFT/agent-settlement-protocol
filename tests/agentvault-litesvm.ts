@@ -18,13 +18,12 @@ describe("agentvault [litesvm]", () => {
   let provider: LiteSVMProvider;
   let program: anchor.Program<any>;
 
-  beforeEach(() => {
+  before(() => {
     client = fromWorkspace(".");
     provider = new LiteSVMProvider(client);
     program = new anchor.Program(IDL, provider);
   });
 
-  afterEach(() => { if ((global as any).gc) (global as any).gc(); });
   function airdrop(pk, sol = 100) {
     provider.client.airdrop(pk, BigInt(sol * 1_000_000_000));
   }
