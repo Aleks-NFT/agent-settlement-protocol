@@ -63,5 +63,11 @@ jobs:
         with:
           swap-size-gb: 8
 
-      - name: Run tests
-        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" anchor test --skip-build --skip-deploy
+      - name: Run tests part 1 (PDA, fee, reputation, lock)
+        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "PDA|fee|PolicyController|escrow|init_reputation|lock"
+
+      - name: Run tests part 2 (revert, execute, settle, post_check)
+        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "revert|execute_trade|settle|post_check|InvalidStatus|InvalidFill|PriceStale"
+
+      - name: Run tests part 3 (NFT market, credit_bond)
+        run: NODE_OPTIONS="--max-old-space-size=4096 --expose-gc" yarn ts-mocha -p ./tsconfig.json -t 1000000 tests/agentvault-litesvm.ts --grep "list_for_sale|buy_settlement|credit_bond" 
