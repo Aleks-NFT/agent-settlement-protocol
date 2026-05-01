@@ -22,7 +22,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cargo/bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-anchor-0.32.1
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-anchor-0.32.1-v2
 
       - name: Install system deps (libudev for hidapi)
         run: sudo apt-get install -y libudev-dev pkg-config
@@ -48,7 +48,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules/
-          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}-v2
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
