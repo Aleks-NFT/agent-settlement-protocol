@@ -21,6 +21,6 @@
     "typescript": "^6.0.2"
   },
   "resolutions": {
-    "litesvm": "0.7.0"
+    "litesvm": "0.5.0"
   }
 }
