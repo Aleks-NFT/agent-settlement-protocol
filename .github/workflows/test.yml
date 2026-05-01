@@ -77,7 +77,7 @@ jobs:
             "credit_bond"; do
             echo "::group::Tests: $grep"
             NODE_OPTIONS="--max-old-space-size=4096" \
-              yarn ts-mocha -p ./tsconfig.json -t 1000000 --exit \
+              yarn ts-mocha -p ./tsconfig.json -t 1000000 \
               tests/agentvault-litesvm.ts --grep "$grep"
             echo "::endgroup::"
           done
