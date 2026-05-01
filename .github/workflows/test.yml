@@ -66,12 +66,17 @@ jobs:
       - name: Build litesvm native binding from source
         run: |
           git clone --depth 1 --branch node-v0.3.3 https://github.com/LiteSVM/litesvm /tmp/litesvm-src
-          cd /tmp/litesvm-src/node
+          ls /tmp/litesvm-src/
+          find /tmp/litesvm-src -name "package.json" -maxdepth 3 | grep -v node_modules
+          PKGDIR=$(dirname $(find /tmp/litesvm-src -name "package.json" -maxdepth 3 | grep -v node_modules | head -1))
+          echo "Building in: $PKGDIR"
+          cd $PKGDIR
           yarn install --frozen-lockfile
           yarn build
-          cp litesvm/litesvm.linux-x64-gnu.node $GITHUB_WORKSPACE/node_modules/litesvm-linux-x64-gnu/litesvm.linux-x64-gnu.node
-          echo "✓ native binding rebuilt for $(ldd --version | head -1)"
-
+          NODEFILE=$(find $PKGDIR -name "*.linux-x64-gnu.node" | head -1)
+          echo "Built: $NODEFILE"
+          cp $NODEFILE $GITHUB_WORKSPACE/node_modules/litesvm-linux-x64-gnu/litesvm.linux-x64-gnu.node
+          echo "✓ done"
       - name: Run tests (isolated processes)
         run: |
           set -e
