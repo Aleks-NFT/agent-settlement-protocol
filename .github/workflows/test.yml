@@ -65,7 +65,7 @@ jobs:
 
       - name: Build litesvm native binding from source
         run: |
-          git clone --depth 1 --branch v0.3.3 https://github.com/LiteSVM/litesvm /tmp/litesvm-src
+          git clone --depth 1 --branch node-v0.3.3 https://github.com/LiteSVM/litesvm /tmp/litesvm-src
           cd /tmp/litesvm-src
           yarn install --frozen-lockfile
           yarn build
