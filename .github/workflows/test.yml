@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -62,6 +62,15 @@ jobs:
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 8
+
+      - name: Build litesvm native binding from source
+        run: |
+          git clone --depth 1 --branch v0.3.3 https://github.com/LiteSVM/litesvm /tmp/litesvm-src
+          cd /tmp/litesvm-src
+          yarn install --frozen-lockfile
+          yarn build
+          cp litesvm/litesvm.linux-x64-gnu.node $GITHUB_WORKSPACE/node_modules/litesvm-linux-x64-gnu/litesvm.linux-x64-gnu.node
+          echo "✓ native binding rebuilt for $(ldd --version | head -1)"
 
       - name: Run tests (isolated processes)
         run: |
