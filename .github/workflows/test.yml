@@ -51,7 +51,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}-v2
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install
 
       - name: Copy IDL
         run: |
@@ -71,7 +71,7 @@ jobs:
           PKGDIR=$(dirname $(find /tmp/litesvm-src -name "package.json" -maxdepth 3 | grep -v node_modules | head -1))
           echo "Building in: $PKGDIR"
           cd $PKGDIR
-          yarn install
+          npm install
           yarn build
           NODEFILE=$(find $PKGDIR -name "*.linux-x64-gnu.node" | head -1)
           echo "Built: $NODEFILE"
