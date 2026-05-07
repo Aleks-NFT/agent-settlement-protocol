@@ -119,9 +119,9 @@ Prediction markets do $2B+ per week. 70%+ of prediction market volume is automat
 These bots have no clearing house. AgentVault is building it.
 
 ASP wraps every agent strategy in a settlement envelope:
-- **Cross-venue protection** — Kalshi divergence triggers atomic revert across venues
-- **Trust-weighted economics** — on-chain reputation sets fee and collateral
-- **Verified settlement** — multi-step atomic execution with on-chain Pyth pre-check
+- **Cross-venue protection** - Kalshi divergence triggers atomic revert across venues
+- **Trust-weighted economics** - on-chain reputation sets fee and collateral
+- **Verified settlement** - multi-step atomic execution with on-chain Pyth pre-check
 
 ---
 
@@ -188,7 +188,7 @@ More settlements -> Higher trust -> Lower fee + Less collateral -> More settleme
 | Azuro | YES | NO | NO | partial | Polygon |
 | Polymarket | YES | NO | NO | CLOB only | Polygon |
 | Drift | YES | NO | NO | partial | HACKED |
-| **AgentVault ASP** | **YES** | **YES atomic N-step** | **YES** | **YES MCP+A2A** | **Solana** |
+|  **Agent Settlement Protocol** | **YES** | **YES atomic N-step** | **YES** | **YES MCP+A2A** | **Solana** |
 
 ---
 
@@ -363,7 +363,7 @@ MIT 2026 AgentVault
 
 ## Early Exit Flow (Factoring)
 
-Bot A opens a position but needs liquidity before resolution — sells the Settlement NFT to Bot B at a 3% discount. Atomic, on-chain, one transaction.
+Bot A opens a position but needs liquidity before resolution - sells the Settlement NFT to Bot B at a 3% discount. Atomic, on-chain, one transaction.
 
 ┌─────────────────────────────────────────────────────┐
 │ Bot A: LOCK → Settlement NFT minted │
