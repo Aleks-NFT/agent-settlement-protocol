@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200">
+    <g transform="translate(20 20) scale(2.5)">
+      <rect x="14" y="14" width="36" height="36" stroke="#171717" stroke-width="3" fill="none"/>
+      <path d="M6 18 V8 H16" stroke="#171717" stroke-width="3" stroke-linecap="square" fill="none"/>
+      <path d="M58 46 V56 H48" stroke="#171717" stroke-width="3" stroke-linecap="square" fill="none"/>
+      <rect x="28" y="28" width="8" height="8" fill="#2ECC71"/>
+    </g>
+    <text x="212" y="86"
+          font-family="'JetBrains Mono', 'Courier New', monospace"
+          font-size="72" font-weight="500"
+          fill="#171717"
+          dominant-baseline="middle">asp</text>
+    <text x="212" y="132"
+          font-family="'JetBrains Mono', 'Courier New', monospace"
+          font-size="20" font-weight="400"
+          fill="#666666"
+          dominant-baseline="middle">agent settlement protocol</text>
+  </svg>
