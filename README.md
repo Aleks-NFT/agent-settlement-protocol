@@ -364,14 +364,14 @@ MIT 2026 AgentVault
 ## Early Exit Flow (Factoring)
 
 Bot A opens a position but needs liquidity before resolution - sells the Settlement NFT to Bot B at a 3% discount. Atomic, on-chain, one transaction.
-
+```text
 ┌─────────────────────────────────────────────────────┐
 │ Bot A: LOCK → Settlement NFT minted │
 │ Bot A: LIST_FOR_SALE → ask_price = 0.97 USDC │
 │ Bot B: BUY_SETTLEMENT → becomes new owner │
 │ Vault collateral follows the NFT automatically │
 └─────────────────────────────────────────────────────┘
-
+```
 ### Run the demo
 
 ```bash
