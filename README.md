@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./readme-hero-dark.svg">
+  <img alt="ASP Project Hero" src="./readme-hero-light.svg">
+</picture>
+
 # Agent Settlement Protocol (ASP)
 
 **The Clearing House for AI Agents on Solana**
