@@ -41,7 +41,7 @@ bash scripts/check-env.sh
 
 ## Use from Claude Desktop / Cursor
 
-Any Claude or Cursor user can plug AgentVault into their AI workflow in one command:
+Any Claude or Cursor user can plug Agent Settlement Protocol into their AI workflow in one command:
 
 ```bash
 npx agentvault-mcp-server
@@ -101,12 +101,12 @@ on-chain post_check that runs INSIDE the same transaction as settlement.
 
 Agent Settlement Protocol (ASP) - the first on-chain clearing house for AI agents on Solana.
 
-**Without AgentVault:**
+**Without Agent Settlement Protocol:**
 Agent -> Buy YES $5K -> Swap USDC to SOL -> Reinvest
 OK FAIL (slippage)
 Agent stuck with unwanted asset. No revert. Funds frozen.
 
-**With AgentVault ASP:**
+**With Agent Settlement Protocol ASP:**
 Agent -> LOCK -> PRE-CHECK -> EXECUTE -> SETTLE
 on any failure:
 REVERT -> full refund
