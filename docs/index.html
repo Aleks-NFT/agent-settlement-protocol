@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentVault — Settlement Layer for Autonomous AI Agents on Solana</title>
+<meta name="description" content="Programmable settlement layer for AI agents on Solana. Atomic execution, trust-weighted economics, capital protection. Live on devnet.">
+<meta property="og:title" content="AgentVault — Agent Settlement Protocol">
+<meta property="og:description" content="Settlement layer for unbanked AI agents. Live on Solana devnet. 33/33 tests passing.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ────── reset ────── */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    background: #0A0A0A;
+    color: #EDEDED;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  /* ────── tokens ────── */
+  :root {
+    --bg:        #0A0A0A;
+    --bg-code:   #111111;
+    --fg:        #EDEDED;
+    --fg-muted:  #707070;
+    --fg-faint:  #4a4a4a;
+    --border:    #1F1F1F;
+    --accent:    #2ECC71;
+    --max:       1100px;
+    --mono:      'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans:      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* ────── element defaults ────── */
+  h1, h2, h3, h4 { margin: 0; font-weight: 600; color: var(--fg); }
+  p              { margin: 0; }
+  a              { color: var(--fg); text-decoration: none; transition: color 150ms ease; }
+  a:hover        { color: var(--accent); }
+  ::selection    { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 1px; }
+  ul             { margin: 0; padding: 0; list-style: none; }
+
+  /* ────── layout primitives ────── */
+  .wrap {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  @media (min-width: 640px) { .wrap { padding: 0 48px; } }
+  @media (min-width: 1100px) { .wrap { padding: 0 24px; } }
+
+  section { padding: 100px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  @media (max-width: 768px) { section { padding: 64px 0; } }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    max-width: 760px;
+  }
+  @media (max-width: 768px) { h2 { font-size: 22px; } }
+
+  /* ────── nav ────── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: saturate(140%) blur(8px);
+    -webkit-backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+  }
+  .wordmark {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--fg);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .wordmark svg { display: block; }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+  .nav-links a { color: var(--fg-muted); }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* ────── hero ────── */
+  .hero { padding: 120px 0 100px; border-bottom: 1px solid var(--border); }
+  @media (max-width: 768px) { .hero { padding: 72px 0 64px; } }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin-bottom: 32px;
+  }
+  .hero-eyebrow .sep { color: var(--fg-faint); margin: 0 8px; }
+  h1 {
+    font-size: 56px;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+    margin-bottom: 28px;
+    max-width: 820px;
+  }
+  h1 .l2 { color: var(--fg-muted); display: block; }
+  @media (max-width: 768px) { h1 { font-size: 36px; } }
+  .hero-sub {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--fg-muted);
+    max-width: 580px;
+    margin-bottom: 40px;
+  }
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--fg);
+    transition: all 150ms ease;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .btn-primary { background: var(--fg); color: var(--bg); }
+  .btn-primary:hover { background: #FFFFFF; border-color: #FFFFFF; color: var(--bg); }
+  .btn-secondary { background: transparent; color: var(--fg); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn .arr { display: inline-block; transition: transform 150ms ease; }
+  .btn:hover .arr { transform: translateX(2px); }
+
+  .live-line {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* ────── problem rows ────── */
+  .problem-list { margin-top: 48px; border-top: 1px solid var(--border); }
+  .p-row {
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    gap: 32px;
+    align-items: start;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .p-amount {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .p-amount-date {
+    display: block;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--fg-muted);
+    letter-spacing: 0;
+    margin-top: 12px;
+  }
+  .p-desc { font-size: 16px; line-height: 1.55; color: var(--fg); padding-top: 6px; max-width: 56ch; }
+  .p-source { font-family: var(--mono); font-size: 13px; color: var(--fg-muted); padding-top: 10px; white-space: nowrap; }
+  .p-source:hover { color: var(--accent); }
+  @media (max-width: 768px) {
+    .p-row { grid-template-columns: 1fr; gap: 12px; padding: 24px 0; }
+    .p-amount { font-size: 28px; }
+    .p-amount-date { margin-top: 6px; }
+    .p-source { padding-top: 4px; }
+  }
+
+  /* ────── how-it-works ────── */
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 48px;
+    align-items: start;
+  }
+  @media (max-width: 768px) { .how-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+  .ascii {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    padding: 24px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--fg);
+    white-space: pre;
+    overflow-x: auto;
+    margin: 0;
+  }
+
+  .pillars { display: flex; flex-direction: column; gap: 28px; }
+  .pillar { padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .pillar:last-child { border-bottom: none; padding-bottom: 0; }
+  .pillar h4 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .pillar h4::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    margin-right: 10px;
+    transform: translateY(-3px);
+  }
+  .pillar p { font-size: 15px; line-height: 1.6; color: var(--fg-muted); }
+
+  /* ────── video thumbnail (embed fallback) ────── */
+  .video-thumb {
+    display: block;
+    margin-top: 48px;
+    position: relative;
+    border: 1px solid var(--border);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    transition: border-color 150ms ease;
+  }
+  .video-thumb:hover { border-color: var(--accent); }
+  .video-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.6);
+    transition: filter 150ms ease;
+  }
+  .video-thumb:hover img { filter: brightness(0.45); }
+  .video-thumb-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .video-thumb-play {
+    width: 56px;
+    height: 56px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 150ms ease, background 150ms ease;
+  }
+  .video-thumb:hover .video-thumb-play { transform: scale(1.1); background: #27ae60; }
+  .video-thumb-label {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg);
+    letter-spacing: 0.04em;
+  }
+
+  /* ────── live demo ────── */
+  .video-frame {
+    margin-top: 48px;
+    border: 1px solid var(--border);
+    background: var(--bg-code);
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+  .video-frame iframe { width: 100%; height: 100%; display: block; border: 0; }
+  .program-line {
+    margin-top: 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    word-break: break-all;
+  }
+  .program-line a { color: var(--fg-muted); }
+  .program-line a:hover { color: var(--accent); }
+
+  /* ────── why now ────── */
+  .quotes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 48px;
+  }
+  @media (max-width: 768px) { .quotes { grid-template-columns: 1fr; gap: 32px; } }
+  .quote {
+    border-left: 2px solid var(--accent);
+    padding: 4px 0 4px 24px;
+  }
+  .quote p {
+    font-size: 18px;
+    line-height: 1.5;
+    font-style: italic;
+    color: var(--fg);
+    margin-bottom: 16px;
+  }
+  .quote .attrib {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--fg-muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    font-style: normal;
+  }
+  .quote a.read {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg-muted);
+  }
+  .quote a.read:hover { color: var(--accent); }
+  .quote-coda {
+    margin-top: 56px;
+    text-align: center;
+    font-size: 16px;
+    color: var(--fg);
+    line-height: 1.55;
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ────── builders ────── */
+  .terminal {
+    margin-top: 48px;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--fg);
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+  .terminal .prompt { color: var(--fg-muted); user-select: none; }
+  .terminal .ok { color: var(--accent); }
+  .stat-grid {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat {
+    padding: 18px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg-muted);
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat strong { color: var(--fg); font-weight: 500; }
+  @media (max-width: 768px) {
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .stat:nth-child(2) { border-right: none; }
+    .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+  }
+
+  /* ────── more / cards ────── */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 48px;
+  }
+  @media (max-width: 768px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    border: 1px solid var(--border);
+    padding: 24px;
+    transition: border-color 150ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card:hover .thumb { border-color: var(--accent); }
+  .thumb {
+    aspect-ratio: 16 / 9;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 150ms ease;
+  }
+  .play {
+    width: 44px; height: 44px;
+    border: 1px solid var(--fg-muted);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 150ms ease;
+  }
+  .card:hover .play { border-color: var(--accent); }
+  .play svg { display: block; }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .card-desc {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg-muted);
+    line-height: 1.55;
+  }
+
+  /* ────── footer ────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 60px 0 40px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 48px;
+  }
+  @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr; gap: 32px; } }
+  .foot-tagline {
+    font-size: 13px;
+    color: var(--fg-muted);
+    line-height: 1.7;
+    margin-top: 16px;
+    max-width: 320px;
+  }
+  .foot-h {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin-bottom: 16px;
+  }
+  .foot-list { display: flex; flex-direction: column; gap: 10px; }
+  .foot-list a {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg);
+  }
+  .foot-list a:hover { color: var(--accent); }
+  .foot-list .ext {
+    color: var(--fg-faint);
+    margin-left: 6px;
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ────── 1. NAV ────── -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="wordmark" aria-label="agentvault home">
+      <svg width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect x="14" y="14" width="36" height="36" stroke="#EDEDED" stroke-width="3" fill="none"/>
+        <path d="M6 18 V8 H16" stroke="#EDEDED" stroke-width="3" stroke-linecap="square" fill="none"/>
+        <path d="M58 46 V56 H48" stroke="#EDEDED" stroke-width="3" stroke-linecap="square" fill="none"/>
+        <rect x="28" y="28" width="8" height="8" fill="#2ECC71"/>
+      </svg>
+      <span>agentvault</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="https://github.com/Aleks-NFT/agent-settlement-protocol" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://x.com/FirstNFT" target="_blank" rel="noopener">Twitter</a>
+      <a href="https://www.youtube.com/watch?v=j1etwuNAaPQ" target="_blank" rel="noopener">Demo</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ────── 2. HERO ────── -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-eyebrow">
+        Agent Settlement Protocol<span class="sep">·</span>Solana<span class="sep">·</span>Live on devnet
+      </div>
+      <h1>
+        Settlement layer for<br>
+        <span class="l2">unbanked AI agents.</span>
+      </h1>
+      <p class="hero-sub">
+        Atomic execution, trust-weighted economics, and capital protection for autonomous agents on Solana. Where oracles detect price, ASP guarantees the outcome · in a single transaction.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="https://www.youtube.com/watch?v=j1etwuNAaPQ" target="_blank" rel="noopener">
+          Watch live demo <span class="arr">→</span>
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/Aleks-NFT/agent-settlement-protocol" target="_blank" rel="noopener">
+          View on GitHub
+        </a>
+      </div>
+      <div class="live-line">
+        <span class="dot" aria-hidden="true"></span>
+        Live on Solana devnet · 33/33 tests passing · MIT
+      </div>
+    </div>
+  </section>
+
+  <!-- ────── 3. THE PROBLEM ────── -->
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">The Problem</div>
+      <h2>Oracles are solved. Payments are solved. Settlement · nobody built it.</h2>
+      <div class="problem-list">
+
+        <div class="p-row">
+          <div class="p-amount">$57M<span class="p-amount-date">Feb 2026</span></div>
+          <div class="p-desc">Kalshi vs Polymarket settled the same Super Bowl bet in opposite directions.</div>
+          <a class="p-source" href="https://www.theguardian.com/us-news/2026/feb/12/prediction-markets-polymarket-kalshi-online-gambling" target="_blank" rel="noopener">Source →</a>
+        </div>
+
+        <div class="p-row">
+          <div class="p-amount">$7M<span class="p-amount-date">Mar 2025</span></div>
+          <div class="p-desc">UMA governance attack on Polymarket. Whale flipped oracle vote, drained correct predictors.</div>
+          <a class="p-source" href="https://www.binance.com/en/square/post/22063961546978" target="_blank" rel="noopener">Source →</a>
+        </div>
+
+        <div class="p-row">
+          <div class="p-amount">$285M<span class="p-amount-date">Nov 2024</span></div>
+          <div class="p-desc">Drift hack · admin key compromise, no atomic safeguards on collateral validation.</div>
+          <a class="p-source" href="https://rekt.news/" target="_blank" rel="noopener">Source →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ────── 4. HOW IT WORKS ────── -->
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">How it works</div>
+      <h2>One transaction. Atomic. Trust-weighted by design.</h2>
+      <div class="how-grid">
+        <pre class="ascii" aria-label="settlement lifecycle diagram">
+┌─────────────────────────────────────────┐
+│                                         │
+│   LOCK ──→  PRE_CHECK  ──→  EXECUTE     │
+│                │                │       │
+│                ↓                ↓       │
+│             REVERT  ←────  POST_CHECK   │
+│                │                │       │
+│                ↓                ↓       │
+│             REFUND          SETTLE      │
+│                                         │
+└─────────────────────────────────────────┘</pre>
+        <div class="pillars">
+          <div class="pillar">
+            <h4>Atomic</h4>
+            <p>Multi-step trades execute as one transaction. Either every leg clears, or every leg reverts. No partial failures.</p>
+          </div>
+          <div class="pillar">
+            <h4>Trust-weighted</h4>
+            <p>On-chain reputation directly determines fees (0.15–0.75%) and collateral (0–150%). Behavior has economic consequences.</p>
+          </div>
+          <div class="pillar">
+            <h4>Transferable</h4>
+            <p>Open positions are tokenized as Settlement NFTs and can be sold before resolution. Liquidity without unwinding.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────── 5. PROTOCOL EXPLAINED ────── -->
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">Protocol explained</div>
+      <h2>The full settlement lifecycle · animated.</h2>
+      <a class="video-thumb" href="https://www.youtube.com/watch?v=Yjlw7zN2ZTM" target="_blank" rel="noopener" aria-label="Watch animated explainer on YouTube">
+        <img src="https://img.youtube.com/vi/Yjlw7zN2ZTM/maxresdefault.jpg" alt="Agent Settlement Protocol — animated explainer" loading="lazy" onerror="this.src='https://img.youtube.com/vi/Yjlw7zN2ZTM/hqdefault.jpg'">
+        <div class="video-thumb-overlay">
+          <div class="video-thumb-play">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 2.5L17 10L5 17.5V2.5Z" fill="#0A0A0A"/></svg>
+          </div>
+          <span class="video-thumb-label">Watch on YouTube →</span>
+        </div>
+      </a>
+      <div class="program-line">
+        <span class="dot" aria-hidden="true"></span>
+        <a href="https://explorer.solana.com/address/24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ?cluster=devnet" target="_blank" rel="noopener">
+          Program: 24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────── 6. WHY NOW ────── -->
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">Why now</div>
+      <h2>The settlement primitive every agent thesis assumes.</h2>
+      <div class="quotes">
+        <blockquote class="quote">
+          <p>"Blockchains let agents own assets, transact autonomously, build reputation, and operate across jurisdictions without permission."</p>
+          <div class="attrib">— a16z crypto · 5 Ways Blockchains Help AI Agents · April 2026</div>
+          <a class="read" href="https://a16zcrypto.com/posts/article/5-ways-blockchains-help-ai-agents/" target="_blank" rel="noopener">Read the article →</a>
+        </blockquote>
+        <blockquote class="quote">
+          <p>"For the first time, a system can maintain a continuously updated model of an entire business and coordinate work in ways that previously required humans relaying information through layers."</p>
+          <div class="attrib">— Sequoia Capital · Jack Dorsey · Every Company Can Now Be a Mini-AGI · 2025</div>
+          <a class="read" href="https://sequoiacap.com/podcast/jack-dorsey-every-company-can-now-be-a-mini-agi/" target="_blank" rel="noopener">Listen to the conversation →</a>
+        </blockquote>
+      </div>
+      <p class="quote-coda">Settlement is the missing primitive both visions assume but neither defines. We built it.</p>
+    </div>
+  </section>
+
+  <!-- ────── 7. FOR BUILDERS ────── -->
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">For builders</div>
+      <h2>Clone and run in 60 seconds.</h2>
+      <pre class="terminal" aria-label="terminal commands"><span class="prompt">$</span> git clone https://github.com/Aleks-NFT/agent-settlement-protocol
+<span class="prompt">$</span> cd agent-settlement-protocol &amp;&amp; anchor build
+<span class="prompt">$</span> anchor test
+  <span class="ok">→ 33/33 tests passing</span></pre>
+      <div class="stat-grid">
+        <div class="stat"><strong>Anchor</strong> 0.32.1</div>
+        <div class="stat"><strong>Pyth</strong> on-chain</div>
+        <div class="stat"><strong>33/33</strong> tests</div>
+        <div class="stat"><strong>MIT</strong> licence</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────── 8. WATCH THE FULL STORY ────── -->
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">Watch</div>
+      <h2>See it in action.</h2>
+      <div class="cards">
+        <a class="card" href="https://www.youtube.com/watch?v=j1etwuNAaPQ" target="_blank" rel="noopener">
+          <div class="thumb" aria-hidden="true">
+            <span class="play">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5 L12 7 L3 12.5 Z" fill="#EDEDED"/></svg>
+            </span>
+          </div>
+          <div class="card-title">Live revert demo</div>
+          <div class="card-desc">38 seconds. Real devnet. Real transactions.</div>
+        </a>
+        <a class="card" href="https://www.youtube.com/watch?v=Yjlw7zN2ZTM" target="_blank" rel="noopener">
+          <div class="thumb" aria-hidden="true">
+            <span class="play">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5 L12 7 L3 12.5 Z" fill="#EDEDED"/></svg>
+            </span>
+          </div>
+          <div class="card-title">Protocol Explained · Animated</div>
+          <div class="card-desc">Agent Settlement Protocol, full lifecycle. How LOCK → REVERT works and why it matters for the agent economy.</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ────── 9. FOOTER ────── -->
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <a href="#top" class="wordmark" aria-label="agentvault home">
+        <svg width="18" height="18" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="14" y="14" width="36" height="36" stroke="#EDEDED" stroke-width="3" fill="none"/>
+          <path d="M6 18 V8 H16" stroke="#EDEDED" stroke-width="3" stroke-linecap="square" fill="none"/>
+          <path d="M58 46 V56 H48" stroke="#EDEDED" stroke-width="3" stroke-linecap="square" fill="none"/>
+          <rect x="28" y="28" width="8" height="8" fill="#2ECC71"/>
+        </svg>
+        <span>agentvault</span>
+      </a>
+      <p class="foot-tagline">
+        Programmable settlement for autonomous agents.<br>
+        MIT licence · 2026
+      </p>
+    </div>
+    <div>
+      <div class="foot-h">Project</div>
+      <div class="foot-list">
+        <a href="https://github.com/Aleks-NFT/agent-settlement-protocol" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.youtube.com/watch?v=j1etwuNAaPQ" target="_blank" rel="noopener">Live demo</a>
+        <a href="https://www.youtube.com/watch?v=Yjlw7zN2ZTM" target="_blank" rel="noopener">Animated explainer</a>
+      </div>
+    </div>
+    <div>
+      <div class="foot-h">Builder</div>
+      <div class="foot-list">
+        <a href="https://x.com/FirstNFT" target="_blank" rel="noopener">Twitter</a>
+        <a href="https://www.colosseum.org/" target="_blank" rel="noopener">Colosseum Frontier 2026</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
