@@ -1,10 +1,4 @@
-[![Tests](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml)
-[📄 Pitch Deck](https://drive.google.com/file/d/1xFUaudiyENTmcqgk1DHrq6G2OHlhn-C6/view) • [🔗 Program on Devnet](https://explorer.solana.com/address/24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ?cluster=devnet) • [🎬 Demo](#demo-scripts)
-
-
 <picture>
-
-
   <source media="(prefers-color-scheme: dark)" srcset="./readme-hero-dark.svg">
   <img alt="ASP Project Hero" src="./readme-hero-light.svg">
 </picture>
@@ -15,14 +9,11 @@
 
 > *The market is building Venmo for agents. AgentVault builds their DTCC.*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)](https://solana.com)
-[![Colosseum Frontier](https://img.shields.io/badge/Hackathon-Colosseum%20Frontier%202026-blue)](https://colosseum.com/frontier)
+[![Tests](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)](https://solana.com) [![Colosseum Frontier](https://img.shields.io/badge/Hackathon-Colosseum%20Frontier%202026-blue)](https://colosseum.com/frontier) [![Devnet](https://img.shields.io/badge/Devnet-live-9945FF)](https://explorer.solana.com/address/5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW?cluster=devnet)
 
-[![Devnet](https://img.shields.io/badge/Devnet-live-9945FF)](https://explorer.solana.com/address/5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW?cluster=devnet)
+[📄 Pitch Deck](https://drive.google.com/file/d/1xFUaudiyENTmcqgk1DHrq6G2OHlhn-C6/view) • [🔗 Program on Devnet](https://explorer.solana.com/address/24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ?cluster=devnet) • [🎬 Demo](#demo-scripts)
 
 ---
-
 ## Hackathon Quickstart
 
 > **Required:** `cargo-build-sbf` with platform-tools ≥ v1.54, `anchor-cli` 0.32.x, `node` ≥ 18, `yarn`.
