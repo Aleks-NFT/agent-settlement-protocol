@@ -12,10 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust 1.85
+      - name: Install Rust 1.86
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: "1.85.0"
+          toolchain: "1.86.0"
 
       - name: Install system deps
         run: sudo apt-get install -y libudev-dev pkg-config
@@ -43,7 +43,7 @@ jobs:
         run: yarn install --no-frozen-lockfile
 
       - name: Build
-        run: CARGO=$HOME/.cargo/bin/cargo anchor build
+        run: anchor build
 
       - name: Test
         run: npm test
