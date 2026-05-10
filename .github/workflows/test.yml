@@ -1,10 +1,6 @@
-name: Tests
+name: AgentVault Tests
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
   test:
@@ -12,53 +8,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust stable
+      - name: Install Rust 1.85
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Cargo
-        uses: actions/cache@v4
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-anchor-0.32.1-v2
+          toolchain: "1.85.0"
 
-      - name: Install system deps (libudev for hidapi)
-        run: sudo apt-get install -y libudev-dev pkg-config
-
-      - name: Install Solana CLI
+      - name: Install Solana
         run: |
-          sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.26/install)"
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
-      - name: Install Anchor CLI 0.32.1
-        run: |
-          if ! command -v anchor &>/dev/null; then
-            cargo install --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli --locked
-          fi
-          anchor --version
+      - name: Install Anchor CLI
+        run: cargo install --git https://github.com/coral-xyz/anchor avm --locked
+        
+      - name: Install Node deps
+        run: yarn install
 
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+      - name: Build
+        run: anchor build
 
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules/
-          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}-v2
-
-      - name: Install dependencies
-        run: yarn install --no-frozen-lockfile
-
-      - name: Copy IDL
-        run: |
-          mkdir -p target/idl target/types target/deploy
-          cp packages/mcp-server/idl/agentvault.json target/idl/agentvault.json
-
-      - name: Set swap space
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 8
+      - name: Test
+        run: npm test
