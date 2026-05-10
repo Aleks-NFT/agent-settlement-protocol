@@ -10,7 +10,10 @@ echo "════════════════════════�
 
 # ── 1. Ensure output directories exist ─────────────────
 mkdir -p target/idl target/types target/deploy
-echo "✓ Output directories ready"
+echo "✓ Output directories ready
+
+# Ensure deterministic program keypair
+cp keys/agentvault-keypair.json target/deploy/agentvault-keypair.json 2>/dev/null || true"
 
 # ── 2. Build SBF binary ────────────────────────────────
 echo ""
