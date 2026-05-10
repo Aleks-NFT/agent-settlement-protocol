@@ -1,4 +1,6 @@
 <picture>
+
+[![Tests](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml)
   <source media="(prefers-color-scheme: dark)" srcset="./readme-hero-dark.svg">
   <img alt="ASP Project Hero" src="./readme-hero-light.svg">
 </picture>
