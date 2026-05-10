@@ -1,4 +1,4 @@
-name: AgentVault Tests
+name: Agent Settlement Protocol
 
 on:
   push:
