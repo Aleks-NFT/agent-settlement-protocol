@@ -14,7 +14,7 @@ import path from "path";
 
 // Load IDL from committed path (no anchor build needed)
 const IDL = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "../packages/mcp-server/idl/agentvault.json"), "utf-8")
+  fs.readFileSync(path.resolve(new URL(".", import.meta.url).pathname, "../packages/mcp-server/idl/agentvault.json"), "utf-8")
 );
 
 const PROGRAM_ID   = new PublicKey("5TS8fj4dXq2J6DsBxJkAWuWcgxnMVAgDBQgkvHev8xBW");
