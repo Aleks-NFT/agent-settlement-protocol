@@ -23,7 +23,7 @@ const IDL = JSON.parse(
   )
 );
 
-const PROGRAM_ID = new PublicKey("24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ");
+const PROGRAM_ID = new PublicKey("5TS8fj4dXq2J6DsBxJkAWuWcgxnMVAgDBQgkvHev8xBW");
 const connection  = new Connection(clusterApiUrl("devnet"), "confirmed");
 const EXPLORER_TX = (sig: string) =>
   `https://explorer.solana.com/tx/${sig}?cluster=devnet`;

@@ -21,7 +21,7 @@ import BN from "bn.js";
 import fs from "fs";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-const PROGRAM_ID  = new PublicKey("24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ");
+const PROGRAM_ID  = new PublicKey("5TS8fj4dXq2J6DsBxJkAWuWcgxnMVAgDBQgkvHev8xBW");
 const connection  = new Connection(clusterApiUrl("devnet"), "confirmed");
 const EXPLORER    = (sig: string) => `https://explorer.solana.com/tx/${sig}?cluster=devnet`;
 const ACCT_LINK   = (pk: string)  => `https://explorer.solana.com/address/${pk}?cluster=devnet`;
@@ -129,7 +129,7 @@ async function main() {
     .accounts({
       agent: botA.publicKey, settlementNft: nftPda, vault: vaultPda,
       reputation: repA, agentUsdc: botAUsdc, vaultUsdc, usdcMint,
-      tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
+      creditBond: null, tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
     })
     .signers([botA]).rpc();
 
