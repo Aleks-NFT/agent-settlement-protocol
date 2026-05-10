@@ -6,10 +6,10 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-agentvault = "5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW"
+agentvault = "3MEhXTGUxSNj59rgafTXoBXdsnj7CDQPjk5J29ReHXKx"
 
 [programs.localnet]
-agentvault = "5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW"
+agentvault = "3MEhXTGUxSNj59rgafTXoBXdsnj7CDQPjk5J29ReHXKx"
 
 [provider]
 cluster = "devnet"
