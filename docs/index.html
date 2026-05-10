@@ -102,14 +102,15 @@
   }
   .wordmark {
     font-family: var(--mono);
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--fg);
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    letter-spacing: 0.01em;
   }
-  .wordmark svg { display: block; }
+  .wordmark svg { display: block; flex-shrink: 0; }
   .nav-links {
     display: flex;
     gap: 28px;
@@ -434,27 +435,98 @@
     gap: 16px;
   }
   .card:hover { border-color: var(--accent); }
-  .card:hover .thumb { border-color: var(--accent); }
-  .thumb {
+
+  /* card thumbnail wrapper */
+  .card-thumb {
+    position: relative;
     aspect-ratio: 16 / 9;
-    background: var(--bg-code);
+    overflow: hidden;
     border: 1px solid var(--border);
+    transition: border-color 150ms ease;
+    background: #0d0d0d;
+  }
+  .card:hover .card-thumb { border-color: var(--accent); }
+
+  /* card 1: live demo — dark green grid pattern */
+  .card-thumb-demo {
+    background-color: #060e08;
+    background-image:
+      linear-gradient(rgba(46,204,113,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(46,204,113,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* card 2: animated — dark blueprint pattern */
+  .card-thumb-anim {
+    background-color: #070810;
+    background-image:
+      linear-gradient(rgba(100,120,180,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100,120,180,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .card-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.55);
+    transition: filter 150ms ease;
+    position: absolute;
+    inset: 0;
+  }
+  .card:hover .card-thumb img { filter: brightness(0.4); }
+
+  /* shared overlay */
+  .card-thumb-overlay {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 150ms ease;
   }
-  .play {
-    width: 44px; height: 44px;
-    border: 1px solid var(--fg-muted);
+
+  /* play button — two variants */
+  .cplay {
+    width: 48px; height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 150ms ease;
+    transition: transform 150ms ease;
   }
-  .card:hover .play { border-color: var(--accent); }
-  .play svg { display: block; }
+  .card:hover .cplay { transform: scale(1.12); }
+  .cplay-filled  { background: var(--accent); }
+  .cplay-outline { background: transparent; border: 1.5px solid #EDEDED; }
+  .card:hover .cplay-outline { border-color: var(--accent); }
+  .card:hover .cplay-outline svg path { fill: var(--accent); }
+
+  /* corner badges */
+  .card-live-badge {
+    position: absolute;
+    top: 12px; left: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(10,10,10,0.7);
+    padding: 4px 8px;
+    border: 1px solid var(--accent);
+  }
+  .card-anim-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg-muted);
+    background: rgba(10,10,10,0.7);
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
   .card-title {
     font-size: 16px;
     font-weight: 600;
@@ -521,7 +593,7 @@
         <path d="M58 46 V56 H48" stroke="#EDEDED" stroke-width="3" stroke-linecap="square" fill="none"/>
         <rect x="28" y="28" width="8" height="8" fill="#2ECC71"/>
       </svg>
-      <span>agentvault</span>
+      <span>Agent Settlement Protocol</span>
     </a>
     <nav class="nav-links" aria-label="Primary">
       <a href="https://github.com/Aleks-NFT/agent-settlement-protocol" target="_blank" rel="noopener">GitHub</a>
@@ -694,24 +766,43 @@
       <div class="eyebrow">Watch</div>
       <h2>See it in action.</h2>
       <div class="cards">
+
+        <!-- Card 1: Live demo — green "live" treatment -->
         <a class="card" href="https://www.youtube.com/watch?v=j1etwuNAaPQ" target="_blank" rel="noopener">
-          <div class="thumb" aria-hidden="true">
-            <span class="play">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5 L12 7 L3 12.5 Z" fill="#EDEDED"/></svg>
-            </span>
+          <div class="card-thumb card-thumb-demo">
+            <img src="https://img.youtube.com/vi/j1etwuNAaPQ/maxresdefault.jpg"
+                 alt="Live revert demo"
+                 loading="lazy"
+                 onerror="this.src='https://img.youtube.com/vi/j1etwuNAaPQ/hqdefault.jpg'">
+            <div class="card-thumb-overlay">
+              <div class="cplay cplay-filled">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2L13 8L4 14V2Z" fill="#0A0A0A"/></svg>
+              </div>
+            </div>
+            <div class="card-live-badge"><span class="dot"></span>Live devnet</div>
           </div>
           <div class="card-title">Live revert demo</div>
           <div class="card-desc">38 seconds. Real devnet. Real transactions.</div>
         </a>
+
+        <!-- Card 2: Animated explainer — monochrome outline treatment -->
         <a class="card" href="https://www.youtube.com/watch?v=Yjlw7zN2ZTM" target="_blank" rel="noopener">
-          <div class="thumb" aria-hidden="true">
-            <span class="play">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5 L12 7 L3 12.5 Z" fill="#EDEDED"/></svg>
-            </span>
+          <div class="card-thumb card-thumb-anim">
+            <img src="https://img.youtube.com/vi/Yjlw7zN2ZTM/maxresdefault.jpg"
+                 alt="Protocol Explained · Animated"
+                 loading="lazy"
+                 onerror="this.src='https://img.youtube.com/vi/Yjlw7zN2ZTM/hqdefault.jpg'">
+            <div class="card-thumb-overlay">
+              <div class="cplay cplay-outline">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2L13 8L4 14V2Z" fill="#EDEDED"/></svg>
+              </div>
+            </div>
+            <div class="card-anim-badge">Animated</div>
           </div>
           <div class="card-title">Protocol Explained · Animated</div>
           <div class="card-desc">Agent Settlement Protocol, full lifecycle. How LOCK → REVERT works and why it matters for the agent economy.</div>
         </a>
+
       </div>
     </div>
   </section>
@@ -722,14 +813,14 @@
 <footer>
   <div class="wrap footer-grid">
     <div>
-      <a href="#top" class="wordmark" aria-label="agentvault home">
+      <a href="#top" class="wordmark" aria-label="Agent Settlement Protocol home">
         <svg width="18" height="18" viewBox="0 0 64 64" fill="none" aria-hidden="true">
           <rect x="14" y="14" width="36" height="36" stroke="#EDEDED" stroke-width="3" fill="none"/>
           <path d="M6 18 V8 H16" stroke="#EDEDED" stroke-width="3" stroke-linecap="square" fill="none"/>
           <path d="M58 46 V56 H48" stroke="#EDEDED" stroke-width="3" stroke-linecap="square" fill="none"/>
           <rect x="28" y="28" width="8" height="8" fill="#2ECC71"/>
         </svg>
-        <span>agentvault</span>
+        <span>Agent Settlement Protocol</span>
       </a>
       <p class="foot-tagline">
         Programmable settlement for autonomous agents.<br>
