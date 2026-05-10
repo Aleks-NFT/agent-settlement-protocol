@@ -31,7 +31,7 @@ function loadIdl(): anchor.Idl {
 }
 
 export const PROGRAM_ID = new PublicKey(
-  "5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW",
+  "24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ",
 );
 
 export const findReputation = (agent: PublicKey) =>

@@ -17,7 +17,7 @@ const IDL = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "../packages/mcp-server/idl/agentvault.json"), "utf-8")
 );
 
-const PROGRAM_ID   = new PublicKey("5SV1Q7yEff4jh5NkH48pTh5okh9mKAXXqdUMjfimWHVW");
+const PROGRAM_ID   = new PublicKey("24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ");
 const connection   = new Connection(clusterApiUrl("devnet"), "confirmed");
 const EXPLORER_TX  = (sig: string) => `https://explorer.solana.com/tx/${sig}?cluster=devnet`;
 const SHOW_FACTORING = process.env.FACTORING === "1";

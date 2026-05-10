@@ -17,5 +17,9 @@
     "tests/**/*.ts",
     "demo/**/*.ts",
     "target/types/*.ts"
-  ]
+  ],
+  "ts-node": {
+    "esm": false,
+    "transpileOnly": true
+  }
 }

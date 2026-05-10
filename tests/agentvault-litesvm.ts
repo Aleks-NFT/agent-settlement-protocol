@@ -1,5 +1,5 @@
 // IDL loaded below via require
-const IDL = require("../target/idl/agentvault.json");
+import IDL from "../target/idl/agentvault.json";
 import { fromWorkspace, LiteSVMProvider } from "anchor-litesvm";
 import * as anchor from "@coral-xyz/anchor";
 import BN from "bn.js";
