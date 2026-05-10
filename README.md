@@ -1,4 +1,6 @@
 [![Tests](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml/badge.svg)](https://github.com/Aleks-NFT/agent-settlement-protocol/actions/workflows/test.yml)
+[📄 Pitch Deck](https://drive.google.com/file/d/1xFUaudiyENTmcqgk1DHrq6G2OHlhn-C6/view) • [🔗 Program on Devnet](https://explorer.solana.com/address/24ieTtzuXd4iA2KwcsyHK4qyUFXgmVPhVNadThVmSvGJ?cluster=devnet) • [🎬 Demo](#demo-scripts)
+
 
 <picture>
 
@@ -349,6 +351,9 @@ Scenario: invalid Pyth feed → `preCheck` rejected on-chain → agent calls `re
 ---
 
 ## Hackathon
+
+📄 **[Pitch Deck (Google Slides)](https://drive.google.com/file/d/1xFUaudiyENTmcqgk1DHrq6G2OHlhn-C6/view)**
+
 
 **Colosseum Frontier** - April 6 to May 11, 2026 - Prize pool $2.5M
 **Superteam Ukraine Track** - 10K USDG
