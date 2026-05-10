@@ -21,7 +21,7 @@ import BN from "bn.js";
 import fs from "fs";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-const PROGRAM_ID  = new PublicKey("5TS8fj4dXq2J6DsBxJkAWuWcgxnMVAgDBQgkvHev8xBW");
+const PROGRAM_ID  = new PublicKey("3MEhXTGUxSNj59rgafTXoBXdsnj7CDQPjk5J29ReHXKx");
 const connection  = new Connection(clusterApiUrl("devnet"), "confirmed");
 const EXPLORER    = (sig: string) => `https://explorer.solana.com/tx/${sig}?cluster=devnet`;
 const ACCT_LINK   = (pk: string)  => `https://explorer.solana.com/address/${pk}?cluster=devnet`;

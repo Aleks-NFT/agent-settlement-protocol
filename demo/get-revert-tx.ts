@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 
 const IDL = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../packages/mcp-server/idl/agentvault.json"), "utf-8"));
-const PROGRAM_ID = new PublicKey("5TS8fj4dXq2J6DsBxJkAWuWcgxnMVAgDBQgkvHev8xBW");
+const PROGRAM_ID = new PublicKey("3MEhXTGUxSNj59rgafTXoBXdsnj7CDQPjk5J29ReHXKx");
 const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 const EX = (s: string) => `https://explorer.solana.com/tx/${s}?cluster=devnet`;
 const pda = (seeds: Buffer[], pid: PublicKey) => PublicKey.findProgramAddressSync(seeds, pid)[0];

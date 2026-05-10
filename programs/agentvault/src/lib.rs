@@ -29,7 +29,7 @@ use init_reputation::*;
 use list_for_sale::*;
 use buy_settlement::*;
 
-declare_id!("5TS8fj4dXq2J6DsBxJkAWuWcgxnMVAgDBQgkvHev8xBW");
+declare_id!("3MEhXTGUxSNj59rgafTXoBXdsnj7CDQPjk5J29ReHXKx");
 
 #[program]
 pub mod agentvault {
