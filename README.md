@@ -219,10 +219,10 @@ cd agent-settlement-protocol
 yarn install
 ```
 
-### Run Tests (32/32)
+### Run Tests (33/33)
 
 ```bash
-anchor test
+yarn test:hackathon   # build SBF + run full LiteSVM suite
 ```
 
 ### Run Live Demo on Devnet
