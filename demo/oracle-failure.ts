@@ -170,7 +170,7 @@ async function main() {
       vaultUsdc,
       agentUsdc,
       reputation:    repPda,
-      tokenProgram:  TOKEN_PROGRAM_ID,
+      creditBond: null, tokenProgram: TOKEN_PROGRAM_ID,
     })
     .rpc();
 
