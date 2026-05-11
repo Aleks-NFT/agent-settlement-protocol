@@ -18,7 +18,7 @@ import path from "path";
 
 const IDL = JSON.parse(
   fs.readFileSync(
-    path.resolve(__dirname, "../packages/mcp-server/idl/agentvault.json"),
+    path.resolve(new URL(".", import.meta.url).pathname, "../packages/mcp-server/idl/agentvault.json"),
     "utf-8"
   )
 );
